@@ -1,19 +1,15 @@
-# Stage 1: Build Frontend and Server bundle
+# Stage 1: Build frontend and server bundle
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package descriptors
 COPY package*.json ./
 RUN npm ci
 
-# Copy source code
 COPY . .
-
-# Build Vite frontend assets and bundle server.ts with esbuild
 RUN npm run build
 
-# Stage 2: Production Execution Environment
+# Stage 2: Production runtime
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -21,17 +17,15 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Install only production dependencies
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy compiled frontend and bundled CommonJS server from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/server/db/schema.sql ./server/db/schema.sql
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/index.html ./index.html
 
-# Non-root user for security
 USER node
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.cjs"]
+CMD ["node", "dist/server.mjs"]
