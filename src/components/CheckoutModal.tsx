@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, CreditCard, CheckCircle2, Truck, Copy, Check, ArrowRight, AlertCircle, Sparkles, Mail } from 'lucide-react';
+import { X, Lock, CreditCard, CheckCircle2, Truck, Copy, Check, ArrowRight, AlertCircle, Sparkles, Mail, Smartphone, QrCode, ShieldCheck, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { useCart } from '../context/CartContext.js';
 import { Order } from '../types/index.js';
+import { formatInr } from '../utils/format.js';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   onViewOrderHistory,
 }) => {
-  const { user, token, isAuthenticated, openSignIn } = useAuth();
+  const { user, token, isAuthenticated, openSignIn, refreshUser } = useAuth();
   const { items, summary, clearCart, showToast } = useCart();
 
   const [step, setStep] = useState<'shipping' | 'payment' | 'confirmation'>('shipping');
@@ -26,21 +27,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [customerEmail, setCustomerEmail] = useState('');
   const [shippingName, setShippingName] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
-  const [shippingCity, setShippingCity] = useState('');
-  const [shippingPostalCode, setShippingPostalCode] = useState('');
-  const [shippingCountry, setShippingCountry] = useState('United States');
-  const [shippingMethod, setShippingMethod] = useState('Standard Ground (3-5 Business Days)');
+  const [shippingCity, setShippingCity] = useState('Bengaluru');
+  const [shippingPostalCode, setShippingPostalCode] = useState('560001');
+  const [shippingCountry, setShippingCountry] = useState('India');
+  const [shippingMethod, setShippingMethod] = useState('Bharat Express (Next-Day Delivery)');
 
-  // Card details state
-  const [cardNumber, setCardNumber] = useState('4242 •••• •••• 4242');
-  const [cardExpiry, setCardExpiry] = useState('12/28');
+  // Payment Selection
+  const [paymentMode, setPaymentMode] = useState<'upi' | 'credit_line' | 'card'>('upi');
+  const [upiId, setUpiId] = useState('user@oksbi');
+  const [cardNumber, setCardNumber] = useState('4524 •••• •••• 1088');
+  const [cardExpiry, setCardExpiry] = useState('08/29');
   const [cardCvc, setCardCvc] = useState('884');
   const [cardName, setCardName] = useState('');
 
   // Confirmation state
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
   const [copiedTracking, setCopiedTracking] = useState(false);
-  const [paymentConfig, setPaymentConfig] = useState<{ isConfigured: boolean; mode: string } | null>(null);
 
   const closeBtnRef = useRef<HTMLButtonElement>(null);
 
@@ -54,16 +56,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       if (user.city) setShippingCity(user.city);
       if (user.postalCode) setShippingPostalCode(user.postalCode);
       if (user.country) setShippingCountry(user.country);
+      if (user.upiId) setUpiId(user.upiId);
     }
   }, [user]);
-
-  // Load payment config
-  useEffect(() => {
-    fetch('/api/payment/config')
-      .then((res) => res.json())
-      .then((data) => setPaymentConfig(data))
-      .catch(() => {});
-  }, []);
 
   // Lock body scroll and handle Escape key
   useEffect(() => {
@@ -91,7 +86,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const handleShippingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!shippingName.trim() || !shippingAddress.trim() || !shippingCity.trim() || !shippingPostalCode.trim()) {
-      setErrorMessage('Please fill in all required shipping address fields.');
+      setErrorMessage('Please complete all required delivery address fields.');
       return;
     }
     if (!isAuthenticated && !customerEmail.trim()) {
@@ -108,33 +103,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setErrorMessage(null);
 
     try {
-      // 1. Create Payment Intent via Stripe API
-      const intentRes = await fetch('/api/payment/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
-          amount: summary.total,
-          currency: 'usd',
-          metadata: {
-            itemCount: items.length,
-            shippingName,
-            customerEmail: customerEmail || user?.email,
-          },
-        }),
-      });
-
-      const intentData = await intentRes.json();
-      if (!intentRes.ok) {
-        throw new Error(intentData.error || 'Failed to initialize payment gateway.');
+      if (paymentMode === 'credit_line') {
+        const availableCredit = user?.availableCreditLimit || 124500;
+        if (summary.total > availableCredit) {
+          throw new Error(`Order total exceeds available credit line (${formatInr(availableCredit)}).`);
+        }
       }
 
-      // Simulate Stripe 3D Secure / authorization latency
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      // Simulate gateway authorization / UPI callback
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 2. Submit order to database (supports both authenticated and guest orders)
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -147,14 +125,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         headers,
         body: JSON.stringify({
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          customerEmail: customerEmail || user?.email || 'customer@nexuscommerce.com',
+          customerEmail: customerEmail || user?.email || 'customer@fincommerce.in',
           shippingName,
           shippingAddress,
           shippingCity,
           shippingPostalCode,
           shippingCountry,
           shippingMethod,
-          paymentIntentId: intentData.paymentIntentId,
+          paymentMethod: paymentMode === 'upi' ? 'UPI' : paymentMode === 'credit_line' ? 'Credit Line' : 'Card',
+          paymentIntentId: `pi_fin_${Date.now()}`,
         }),
       });
 
@@ -166,10 +145,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
       setCompletedOrder(orderData.order);
       clearCart();
-      showToast('Order confirmed! Package reference assigned.', 'success');
+      await refreshUser();
+      showToast('Order confirmed! Tracking ID & tax invoice generated.', 'success');
       setStep('confirmation');
     } catch (err: any) {
-      setErrorMessage(err.message || 'Payment processing failed. Please check your credentials and try again.');
+      setErrorMessage(err.message || 'Payment processing failed. Please check credentials and try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -199,10 +179,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           <div className="flex items-center space-x-2">
             <Lock className="w-4 h-4 text-emerald-600" aria-hidden="true" />
             <h2 id="checkout-modal-title" className="font-extrabold text-sm text-slate-900 tracking-tight font-serif">
-              NEXUS SECURE CHECKOUT
+              FINCOMMERCE SECURE CHECKOUT
             </h2>
-            <span className="text-[11px] bg-slate-200/80 text-slate-800 px-2 py-0.5 rounded font-mono">
-              Stripe 256-Bit
+            <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-mono font-bold">
+              NPCI UPI & 256-Bit SSL
             </span>
           </div>
           <button
@@ -222,21 +202,21 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center text-[10px] font-black" aria-hidden="true">
                 1
               </span>
-              <span>Shipping</span>
+              <span>Delivery Details</span>
             </li>
             <div className="w-12 h-0.5 bg-slate-200" aria-hidden="true" />
             <li className={`flex items-center space-x-1.5 ${step === 'payment' ? 'text-indigo-700' : step === 'confirmation' ? 'text-slate-900' : 'text-slate-500'}`} aria-current={step === 'payment' ? 'step' : undefined}>
               <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center text-[10px] font-black" aria-hidden="true">
                 2
               </span>
-              <span>Payment</span>
+              <span>Payment (UPI / Credit / Card)</span>
             </li>
             <div className="w-12 h-0.5 bg-slate-200" aria-hidden="true" />
             <li className={`flex items-center space-x-1.5 ${step === 'confirmation' ? 'text-indigo-700' : 'text-slate-500'}`} aria-current={step === 'confirmation' ? 'step' : undefined}>
               <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-800 flex items-center justify-center text-[10px] font-black" aria-hidden="true">
                 3
               </span>
-              <span>Confirmation</span>
+              <span>Order Confirmation</span>
             </li>
           </ol>
         </nav>
@@ -254,13 +234,13 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           <form onSubmit={handleShippingSubmit} className="p-6 space-y-4">
             {!isAuthenticated ? (
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center justify-between">
-                <span>Checking out as a Guest. You can place your order instantly below.</span>
+                <span>Guest checkout active. You can enter details and complete payment directly.</span>
                 <button
                   type="button"
                   onClick={openSignIn}
                   className="font-bold underline text-indigo-700 hover:text-indigo-900 ml-2 shrink-0 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none rounded"
                 >
-                  Sign In instead
+                  Sign In
                 </button>
               </div>
             ) : null}
@@ -269,7 +249,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               {!isAuthenticated && (
                 <div className="sm:col-span-2">
                   <label htmlFor="checkout-email" className="block text-xs font-bold text-slate-800 mb-1">
-                    Contact Email Address * (For order receipts & tracking)
+                    Contact Email * (For GST invoice & SMS/email delivery tracking)
                   </label>
                   <div className="relative">
                     <input
@@ -278,7 +258,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       required
                       value={customerEmail}
                       onChange={(e) => setCustomerEmail(e.target.value)}
-                      placeholder="e.g. yourname@example.com"
+                      placeholder="name@example.in"
                       className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                     />
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" aria-hidden="true" />
@@ -296,7 +276,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   required
                   value={shippingName}
                   onChange={(e) => setShippingName(e.target.value)}
-                  placeholder="e.g. Alex Mercer"
+                  placeholder="e.g. Priya Sharma"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                 />
               </div>
@@ -311,7 +291,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   required
                   value={shippingAddress}
                   onChange={(e) => setShippingAddress(e.target.value)}
-                  placeholder="Street address, apartment, suite or unit"
+                  placeholder="Flat/House No., Building, Street Name, Area"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                 />
               </div>
@@ -326,14 +306,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   required
                   value={shippingCity}
                   onChange={(e) => setShippingCity(e.target.value)}
-                  placeholder="San Francisco"
+                  placeholder="Bengaluru"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                 />
               </div>
 
               <div>
                 <label htmlFor="checkout-shipping-postal" className="block text-xs font-bold text-slate-800 mb-1">
-                  Postal / ZIP Code *
+                  PIN Code *
                 </label>
                 <input
                   type="text"
@@ -341,7 +321,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   required
                   value={shippingPostalCode}
                   onChange={(e) => setShippingPostalCode(e.target.value)}
-                  placeholder="94107"
+                  placeholder="560001"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                 />
               </div>
@@ -356,12 +336,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   onChange={(e) => setShippingCountry(e.target.value)}
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                 >
+                  <option value="India">India</option>
                   <option value="United States">United States</option>
-                  <option value="Canada">Canada</option>
                   <option value="United Kingdom">United Kingdom</option>
-                  <option value="Germany">Germany</option>
-                  <option value="Japan">Japan</option>
-                  <option value="Australia">Australia</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="UAE">United Arab Emirates</option>
                 </select>
               </div>
 
@@ -373,14 +352,14 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       type="radio"
                       id="shipping-ground"
                       name="deliveryMethod"
-                      checked={shippingMethod.includes('Standard')}
-                      onChange={() => setShippingMethod('Standard Ground (3-5 Business Days)')}
+                      checked={shippingMethod.includes('Bharat Express')}
+                      onChange={() => setShippingMethod('Bharat Express (Next-Day Delivery)')}
                       className="text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-600"
                     />
-                    <span className="text-xs font-medium text-slate-800">Standard Ground (3-5 Business Days)</span>
+                    <span className="text-xs font-medium text-slate-800">Bharat Express (1-2 Days Guaranteed)</span>
                   </div>
                   <span className="text-xs font-bold text-emerald-700">
-                    {summary.shipping === 0 ? 'FREE' : '$15.00'}
+                    {summary.shipping === 0 ? 'FREE' : formatInr(summary.shipping)}
                   </span>
                 </label>
               </fieldset>
@@ -388,120 +367,201 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <div>
-                <span className="text-xs text-slate-500 block">Total Due</span>
-                <span className="text-xl font-black text-slate-900">${summary.total.toFixed(2)}</span>
+                <span className="text-xs text-slate-500 block">Total Payable</span>
+                <span className="text-xl font-black text-slate-900">{formatInr(summary.total)}</span>
               </div>
               <button
                 type="submit"
                 id="checkout-next-payment-btn"
                 className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none flex items-center space-x-2 transition-all"
               >
-                <span>Continue to Payment</span>
+                <span>Select Payment Method</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </form>
         )}
 
-        {/* STEP 2: PAYMENT (STRIPE) */}
+        {/* STEP 2: PAYMENT (UPI / CREDIT LINE / CARD) */}
         {step === 'payment' && (
           <form onSubmit={handlePaymentSubmit} className="p-6 space-y-4">
-            {/* Stripe Badge Header */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs" aria-hidden="true">
-                  S
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">Stripe Payment Gateway</p>
-                  <p className="text-[11px] text-slate-600">
-                    {paymentConfig?.isConfigured
-                      ? 'Live Stripe card processing active'
-                      : 'Sandbox test card processing active'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[11px] bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full font-bold">
-                256-Bit SSL Encrypted
-              </span>
+            {/* Payment Method Selector */}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMode('upi')}
+                className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
+                  paymentMode === 'upi'
+                    ? 'border-indigo-600 bg-indigo-50/70 text-indigo-900 font-bold ring-2 ring-indigo-600'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <Smartphone className="w-5 h-5 text-indigo-600" />
+                <span className="text-xs">UPI Instant</span>
+                <span className="text-[10px] text-emerald-700 font-medium">⚡ 0% Fee</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMode('credit_line')}
+                className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
+                  paymentMode === 'credit_line'
+                    ? 'border-indigo-600 bg-indigo-50/70 text-indigo-900 font-bold ring-2 ring-indigo-600'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <Zap className="w-5 h-5 text-amber-500" />
+                <span className="text-xs">FinCommerce Credit</span>
+                <span className="text-[10px] text-indigo-700 font-medium">Split in 3 @ ₹0</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMode('card')}
+                className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
+                  paymentMode === 'card'
+                    ? 'border-indigo-600 bg-indigo-50/70 text-indigo-900 font-bold ring-2 ring-indigo-600'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <CreditCard className="w-5 h-5 text-slate-700" />
+                <span className="text-xs">RuPay / Cards</span>
+                <span className="text-[10px] text-slate-500 font-medium">Debit & Credit</span>
+              </button>
             </div>
 
-            {/* Card Inputs */}
-            <div className="space-y-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-              <div>
-                <label htmlFor="card-name-input" className="block text-xs font-bold text-slate-800 mb-1">
-                  Name on Card
-                </label>
-                <input
-                  type="text"
-                  id="card-name-input"
-                  required
-                  value={cardName || shippingName}
-                  onChange={(e) => setCardName(e.target.value)}
-                  placeholder="Cardholder Name"
-                  className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="card-number-input" className="block text-xs font-bold text-slate-800 mb-1">
-                  Card Number
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    id="card-number-input"
-                    required
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    placeholder="4242 4242 4242 4242"
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
-                  />
-                  <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
+            {/* UPI Option Form */}
+            {paymentMode === 'upi' && (
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <QrCode className="w-5 h-5 text-indigo-600" />
+                    <span className="text-xs font-bold text-slate-900">Virtual Payment Address (VPA)</span>
+                  </div>
+                  <span className="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
+                    Instant Approval
+                  </span>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="card-expiry-input" className="block text-xs font-bold text-slate-800 mb-1">
-                    Expiry Date
+                  <label htmlFor="upi-vpa-input" className="block text-xs font-bold text-slate-700 mb-1">
+                    Enter UPI ID (e.g. mobile@upi, name@oksbi)
                   </label>
                   <input
                     type="text"
-                    id="card-expiry-input"
-                    required
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    placeholder="MM/YY"
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
+                    id="upi-vpa-input"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    placeholder="e.g. 9876543210@paytm"
+                    className="w-full text-sm bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                   />
                 </div>
+                <p className="text-[11px] text-slate-500">
+                  Supported by Google Pay, PhonePe, Paytm, BHIM, and all NPCI certified banks.
+                </p>
+              </div>
+            )}
+
+            {/* Credit Line Option Form */}
+            {paymentMode === 'credit_line' && (
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-950">Pre-Approved FinCommerce Credit</span>
+                  <span className="text-xs font-black text-indigo-700">
+                    Avail: {formatInr(user?.availableCreditLimit || 124500)}
+                  </span>
+                </div>
+                <div className="p-3 bg-white/80 rounded-xl border border-indigo-100 text-xs text-slate-800 space-y-1">
+                  <div className="flex justify-between font-medium">
+                    <span>Pay Today:</span>
+                    <strong className="text-emerald-700">{formatInr(Math.round(summary.total / 3))}</strong>
+                  </div>
+                  <div className="flex justify-between font-medium">
+                    <span>Month 2 & 3:</span>
+                    <span>2 equal payments of {formatInr(Math.round(summary.total / 3))}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+                    <span>Interest & Processing fee:</span>
+                    <span className="font-bold text-emerald-700">₹0 (Zero Cost)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Card Option Form */}
+            {paymentMode === 'card' && (
+              <div className="space-y-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                  <label htmlFor="card-cvc-input" className="block text-xs font-bold text-slate-800 mb-1">
-                    CVC / Security Code
+                  <label htmlFor="card-name-input" className="block text-xs font-bold text-slate-800 mb-1">
+                    Cardholder Name
                   </label>
                   <input
                     type="text"
-                    id="card-cvc-input"
-                    required
-                    value={cardCvc}
-                    onChange={(e) => setCardCvc(e.target.value)}
-                    placeholder="123"
-                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
+                    id="card-name-input"
+                    value={cardName || shippingName}
+                    onChange={(e) => setCardName(e.target.value)}
+                    placeholder="Name as printed on card"
+                    className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
                   />
                 </div>
+
+                <div>
+                  <label htmlFor="card-number-input" className="block text-xs font-bold text-slate-800 mb-1">
+                    Card Number (RuPay, Visa, Mastercard)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="card-number-input"
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      placeholder="4524 •••• •••• 1088"
+                      className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
+                    />
+                    <CreditCard className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="card-expiry-input" className="block text-xs font-bold text-slate-800 mb-1">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="text"
+                      id="card-expiry-input"
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(e.target.value)}
+                      placeholder="MM/YY"
+                      className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="card-cvc-input" className="block text-xs font-bold text-slate-800 mb-1">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      id="card-cvc-input"
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value)}
+                      placeholder="884"
+                      className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-mono focus-visible:ring-2 focus-visible:ring-indigo-600 focus:outline-none"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Mini Order Summary */}
             <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-700 space-y-1">
               <div className="flex justify-between font-medium">
-                <span>Shipping Destination:</span>
+                <span>Delivery Destination:</span>
                 <span className="text-slate-900 truncate max-w-[220px] font-semibold">{shippingAddress}, {shippingCity}</span>
               </div>
               <div className="flex justify-between font-medium">
                 <span>Order Total ({items.length} items):</span>
-                <span className="text-slate-900 font-black">${summary.total.toFixed(2)}</span>
+                <span className="text-slate-900 font-black">{formatInr(summary.total)}</span>
               </div>
             </div>
 
@@ -512,7 +572,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 onClick={() => setStep('shipping')}
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none px-2 py-1 rounded"
               >
-                ← Back to Shipping
+                ← Back to Details
               </button>
 
               <button
@@ -525,12 +585,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {isProcessing ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-                    <span>Processing with Stripe...</span>
+                    <span>Authorizing Payment...</span>
                   </>
                 ) : (
                   <>
                     <Lock className="w-4 h-4" aria-hidden="true" />
-                    <span>Pay ${summary.total.toFixed(2)}</span>
+                    <span>Authorize {formatInr(summary.total)}</span>
                   </>
                 )}
               </button>
@@ -547,10 +607,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
             <div>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-serif">
-                Thank You For Your Order!
+                Order Confirmed!
               </h2>
               <p className="text-xs text-slate-600 mt-1.5">
-                A confirmation receipt and tracking notification has been recorded for {completedOrder.customerEmail || user?.email}.
+                GST invoice and delivery updates sent to {completedOrder.customerEmail || user?.email}.
               </p>
             </div>
 
@@ -566,7 +626,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div className="text-right">
                   <span className="text-[11px] text-slate-500 block font-bold uppercase">Estimated Delivery</span>
                   <span className="text-xs font-bold text-emerald-800">
-                    {new Date(completedOrder.estimatedDelivery).toLocaleDateString(undefined, {
+                    {new Date(completedOrder.estimatedDelivery).toLocaleDateString('en-IN', {
                       weekday: 'short',
                       month: 'short',
                       day: 'numeric',
@@ -616,7 +676,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         <p className="text-[11px] text-slate-500">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <span className="font-bold text-slate-900">${item.subtotal.toFixed(2)}</span>
+                    <span className="font-bold text-slate-900">{formatInr(item.subtotal)}</span>
                   </div>
                 ))}
               </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Star, ShoppingBag, Truck, ShieldCheck, Check, ArrowRight } from 'lucide-react';
 import { Product } from '../types/index.js';
 import { useCart } from '../context/CartContext.js';
+import { formatInr } from '../utils/format.js';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -151,14 +152,26 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
 
               {/* Price */}
-              <div className="flex items-baseline space-x-3 mt-4 pt-4 border-t border-slate-100">
-                <span className="text-3xl font-black text-slate-900">
-                  ${product.price.toFixed(2)}
-                </span>
-                {product.compareAtPrice && (
-                  <span className="text-base text-slate-500 line-through font-medium">
-                    ${product.compareAtPrice.toFixed(2)}
+              <div className="flex flex-col mt-4 pt-4 border-t border-slate-100">
+                <div className="flex items-baseline space-x-3">
+                  <span className="text-3xl font-black text-slate-900">
+                    {formatInr(product.price)}
                   </span>
+                  {product.compareAtPrice && (
+                    <span className="text-base text-slate-500 line-through font-medium">
+                      {formatInr(product.compareAtPrice)}
+                    </span>
+                  )}
+                </div>
+                {product.emiPerMonth && (
+                  <div className="mt-2 text-xs font-semibold text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg inline-flex items-center space-x-2 border border-indigo-100 self-start">
+                    <span>Credit & Split Pay: Pay {formatInr(product.emiPerMonth)}/month for 3 months with 0% interest</span>
+                  </div>
+                )}
+                {product.sellerName && (
+                  <div className="mt-2 text-xs text-slate-600 font-medium">
+                    Fulfilled by verified Indian merchant: <strong className="text-slate-900">{product.sellerName}</strong>
+                  </div>
                 )}
               </div>
 

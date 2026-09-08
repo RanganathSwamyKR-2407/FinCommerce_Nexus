@@ -1,13 +1,13 @@
-import bcrypt from 'bcryptjs';
-
 export interface DBProduct {
   id: number;
   name: string;
   slug: string;
   description: string;
-  price: number;
+  price: number; // In INR (₹)
   compareAtPrice?: number;
   categoryName: string;
+  sellerName: string;
+  sellerCity: string;
   imageUrl: string;
   galleryUrls: string[];
   stockQuantity: number;
@@ -15,6 +15,7 @@ export interface DBProduct {
   reviewCount: number;
   isFeatured: boolean;
   tags: string[];
+  emiPerMonth: number;
   specs?: Record<string, string>;
 }
 
@@ -29,319 +30,263 @@ export interface DBCategory {
 export const initialCategories: DBCategory[] = [
   {
     id: 1,
-    name: 'Audio & Acoustics',
-    slug: 'audio-acoustics',
-    description: 'Studio-grade headphones, wireless earbuds, and precision soundbars.',
+    name: 'Smart Tech & Sound',
+    slug: 'smart-tech-sound',
+    description: 'Noise-cancelling wireless earbuds, high-res audio DACs, and precision soundbars.',
     icon: 'Headphones',
   },
   {
     id: 2,
-    name: 'Smart Workspace',
-    slug: 'smart-workspace',
-    description: 'Ergonomic accessories, mechanical keyboards, and 4K displays.',
-    icon: 'Monitor',
+    name: 'Artisanal & Handloom',
+    slug: 'artisanal-handloom',
+    description: 'Authentic Indian handicrafts, Kashmiri Pashmina, Varanasi pure silk, and brass accents.',
+    icon: 'Sparkles',
   },
   {
     id: 3,
-    name: 'Wearables & Fitness',
-    slug: 'wearables-fitness',
-    description: 'Precision biometric smartwatches, rings, and telemetry bands.',
-    icon: 'Watch',
+    name: 'Workspace & Ergonomics',
+    slug: 'workspace-ergonomics',
+    description: 'Solid Sheesham wood desk risers, mechanical keyboards with bilingual keycaps, and ergonomic chairs.',
+    icon: 'Monitor',
   },
   {
     id: 4,
-    name: 'Modern Lifestyle',
-    slug: 'modern-lifestyle',
-    description: 'Minimalist travel bags, titanium daily carry, and smart home lighting.',
-    icon: 'Briefcase',
+    name: 'Organics & Superfoods',
+    slug: 'organics-superfoods',
+    description: 'Coorg single-origin Arabica, Kashmiri saffron, cold-pressed virgin oils, and raw forest honey.',
+    icon: 'ShoppingBag',
+  },
+  {
+    id: 5,
+    name: 'FinCommerce Hardware',
+    slug: 'fincommerce-hardware',
+    description: 'Bharat Soundbox audio payment alert units, contactless Micro-POS terminals, and biometric hardware vaults.',
+    icon: 'CreditCard',
   },
 ];
 
 export const initialProducts: DBProduct[] = [
   {
     id: 1,
-    name: 'Aether Pro Wireless Noise-Cancelling Headphones',
-    slug: 'aether-pro-wireless-headphones',
-    description: 'Engineered with custom 45mm beryllium drivers and active adaptive noise cancellation. Delivers ultra-low distortion, high-resolution 96kHz/24-bit audio playback, and 40 hours of continuous battery life.',
-    price: 349.00,
-    compareAtPrice: 399.00,
-    categoryName: 'Audio & Acoustics',
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
+    name: 'Bharat Soundbox Pro 4G with Multilingual Voice',
+    slug: 'bharat-soundbox-pro-4g',
+    description: 'Instant loud voice confirmation for all UPI and QR payments in 11 Indian regional languages. Features high-gain 4G dual-SIM auto-switch, 5-day battery backup, and rugged splash-resistant housing built for Indian retail counters.',
+    price: 1899.00,
+    compareAtPrice: 2499.00,
+    categoryName: 'FinCommerce Hardware',
+    sellerName: 'Bengaluru Tech Instruments',
+    sellerCity: 'Bengaluru, Karnataka',
+    imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1484704849700-f032a568e944?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80'
     ],
-    stockQuantity: 42,
+    stockQuantity: 45,
     rating: 4.9,
-    reviewCount: 328,
+    reviewCount: 412,
     isFeatured: true,
-    tags: ['wireless', 'noise-cancelling', 'audiophile', 'bluetooth 5.3'],
+    tags: ['upi soundbox', 'qr audio', 'multilingual', 'merchant', '4g'],
+    emiPerMonth: 633,
     specs: {
-      'Driver Size': '45mm Beryllium',
-      'Battery Life': '40 Hours (ANC On)',
-      'Connectivity': 'Bluetooth 5.3 + USB-C DAC',
-      'Weight': '265g'
+      'Languages': 'English, Hindi, Kannada, Tamil, Telugu, Marathi + 5 more',
+      'Connectivity': '4G LTE Dual SIM + 2.4GHz Wi-Fi',
+      'Battery Life': '120 Hours Continuous Standby',
+      'Audio Output': '95dB High-Clarity Amplifier'
     }
   },
   {
     id: 2,
-    name: 'Vanguard Chrono Smartwatch Ultra',
-    slug: 'vanguard-chrono-smartwatch-ultra',
-    description: 'Aerospace-grade titanium chassis with sapphire crystal display. Continuous cardiovascular monitoring, multi-band GPS tracking, and 100m water resistance for rugged outdoor expeditions.',
-    price: 499.00,
-    compareAtPrice: 549.00,
-    categoryName: 'Wearables & Fitness',
-    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
+    name: 'Aura Wave Pro Wireless ANC Earbuds (Spatial Audio)',
+    slug: 'aura-wave-pro-wireless-anc',
+    description: 'Flagship hybrid active noise cancellation (up to 48dB) tailored for bustling metro environments. Powered by dual 11mm graphene drivers, LDAC high-res decoding, and 38 hours of playtime with rapid warp charge.',
+    price: 4499.00,
+    compareAtPrice: 5999.00,
+    categoryName: 'Smart Tech & Sound',
+    sellerName: 'Sonic Bharat Labs',
+    sellerCity: 'Hyderabad, Telangana',
+    imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=800&auto=format&fit=crop&q=80'
     ],
-    stockQuantity: 18,
+    stockQuantity: 28,
     rating: 4.8,
-    reviewCount: 194,
+    reviewCount: 184,
     isFeatured: true,
-    tags: ['smartwatch', 'titanium', 'fitness', 'gps'],
+    tags: ['anc', 'wireless', 'bluetooth 5.3', 'spatial audio'],
+    emiPerMonth: 1500,
     specs: {
-      'Case Material': 'Grade 5 Titanium',
-      'Display': '1.43" AMOLED 1000 nits',
-      'Water Resistance': '10 ATM (100m)',
-      'Sensors': 'Optical PPG, ECG, SpO2, Altimeter'
+      'Noise Reduction': '48dB Hybrid ANC',
+      'Battery': '38 Hours Total (Earbuds + Case)',
+      'Fast Charge': '10 Mins gives 5 Hours Play',
+      'Water Resistance': 'IPX5 Sweat Resistant'
     }
   },
   {
     id: 3,
-    name: 'Tactile Lumina 75% Custom Mechanical Keyboard',
-    slug: 'tactile-lumina-mechanical-keyboard',
-    description: 'CNC-milled solid anodized aluminum housing with gasket-mounted PCB, pre-lubed silent tactile switches, and hot-swappable sockets. Features per-key RGB backlighting and tri-mode wireless connectivity.',
-    price: 189.00,
-    compareAtPrice: 220.00,
-    categoryName: 'Smart Workspace',
+    name: 'Handwoven Cashmere Pashmina Stole (GI Certified)',
+    slug: 'handwoven-cashmere-pashmina-stole',
+    description: 'Crafted from authentic Changthangi goat wool hand-spun on traditional charkhas in the Kashmir valley. Featuring delicate Sozni needlework borders, feather-light weight (120g), and heirloom thermal warmth.',
+    price: 8999.00,
+    compareAtPrice: 11500.00,
+    categoryName: 'Artisanal & Handloom',
+    sellerName: 'Kashmir Heritage Craftsmen',
+    sellerCity: 'Srinagar, Jammu & Kashmir',
+    imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800&auto=format&fit=crop&q=80',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=800&auto=format&fit=crop&q=80'
+    ],
+    stockQuantity: 12,
+    rating: 4.95,
+    reviewCount: 96,
+    isFeatured: true,
+    tags: ['pashmina', 'cashmere', 'gi-certified', 'handloom', 'kashmir'],
+    emiPerMonth: 3000,
+    specs: {
+      'Material': '100% Changthangi Cashmere',
+      'Weave': 'Traditional Charkha Handspun Diamond Weave',
+      'Certification': 'Geographical Indication (GI) Tagged',
+      'Dimensions': '200cm x 70cm'
+    }
+  },
+  {
+    id: 4,
+    name: 'Solid Sheesham Wood Dual-Monitor Ergonomic Riser',
+    slug: 'sheesham-wood-monitor-riser',
+    description: 'Handcrafted from kiln-dried Indian Rosewood (Sheesham) with natural grain honey wax finish. Elevated height promotes optimal spinal alignment and declutters desks with integrated phone dock, pen groove, and keyboard garage.',
+    price: 2799.00,
+    compareAtPrice: 3499.00,
+    categoryName: 'Workspace & Ergonomics',
+    sellerName: 'Rajasthan Timber & Guild',
+    sellerCity: 'Jodhpur, Rajasthan',
+    imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80'
+    ],
+    stockQuantity: 24,
+    rating: 4.85,
+    reviewCount: 230,
+    isFeatured: false,
+    tags: ['sheesham', 'desk organizer', 'ergonomic', 'artisan', 'solid wood'],
+    emiPerMonth: 933,
+    specs: {
+      'Wood': 'Sustainable Indian Sheesham (Rosewood)',
+      'Load Capacity': 'Tested up to 35 kg',
+      'Dimensions': '105cm x 24cm x 11cm',
+      'Finish': 'Zero-VOC Eco Honey Wax'
+    }
+  },
+  {
+    id: 5,
+    name: 'Coorg Single-Estate Arabica Roast & Brass Filter Set',
+    slug: 'coorg-arabica-brass-filter-set',
+    description: 'Shade-grown under silver oak canopies in the Western Ghats at 3,800ft elevation. Medium-dark roast paired with a traditional heavy-gauge Kumbakonam virgin brass South Indian drip filter.',
+    price: 1299.00,
+    compareAtPrice: 1599.00,
+    categoryName: 'Organics & Superfoods',
+    sellerName: 'Coorg Estate Coffee Roasters',
+    sellerCity: 'Madikeri, Karnataka',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800&auto=format&fit=crop&q=80'
+    ],
+    stockQuantity: 65,
+    rating: 4.9,
+    reviewCount: 310,
+    isFeatured: false,
+    tags: ['coffee', 'filter coffee', 'brass', 'coorg', 'organic'],
+    emiPerMonth: 433,
+    specs: {
+      'Origin': 'Western Ghats, Coorg (3,800 ft)',
+      'Roast Profile': 'Medium-Dark Slow Drum Roast',
+      'Tasting Notes': 'Dark Chocolate, Roasted Hazelnut, Caramel',
+      'Hardware': 'Pure Food-Grade Heavy Brass Filter (200ml)'
+    }
+  },
+  {
+    id: 6,
+    name: 'FinCommerce Tap-to-Pay Micro POS & RuPay Terminal',
+    slug: 'fincommerce-tap-to-pay-pos',
+    description: 'Pocket-sized EMV contactless card & UPI QR reader. Connects via Bluetooth to any Android or iOS smartphone. 0% transaction MDR on RuPay debit cards & UPI transactions under ₹2,000.',
+    price: 2499.00,
+    compareAtPrice: 3199.00,
+    categoryName: 'FinCommerce Hardware',
+    sellerName: 'FinCommerce Payment Systems',
+    sellerCity: 'Mumbai, Maharashtra',
+    imageUrl: 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1556742031-c6961e8560b0?w=800&auto=format&fit=crop&q=80'
+    ],
+    stockQuantity: 35,
+    rating: 4.88,
+    reviewCount: 178,
+    isFeatured: false,
+    tags: ['pos', 'rupay', 'nfc', 'contactless', 'merchant'],
+    emiPerMonth: 833,
+    specs: {
+      'Supported Payments': 'UPI QR, RuPay Contactless, Visa, Mastercard',
+      'Compliance': 'PCI-PTS 6.x & EMVCo L1/L2 Certified',
+      'Battery': '800 Transactions per Charge',
+      'Connectivity': 'BLE 5.2 + USB-C'
+    }
+  },
+  {
+    id: 7,
+    name: 'Devanagari Bilingual Wireless Mechanical Keyboard (Hot-Swap)',
+    slug: 'devanagari-bilingual-mechanical-keyboard',
+    description: 'Precision 75% mechanical keyboard with laser-etched English & Devanagari Hindi legends. Pre-lubed linear switches, sound-dampening silicone gaskets, and tri-mode connectivity (2.4GHz, Bluetooth 5.0, USB-C).',
+    price: 3899.00,
+    compareAtPrice: 4799.00,
+    categoryName: 'Workspace & Ergonomics',
+    sellerName: 'Akshar Mechanical Studio',
+    sellerCity: 'Pune, Maharashtra',
     imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
     galleryUrls: [
       'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80'
     ],
-    stockQuantity: 27,
-    rating: 4.95,
-    reviewCount: 412,
-    isFeatured: true,
-    tags: ['keyboard', 'mechanical', 'custom', 'wireless'],
-    specs: {
-      'Layout': '75% Compact (82 Keys)',
-      'Mounting': 'Poron Gasket Mount',
-      'Switches': 'Gateron Oil King (Lubed)',
-      'Connectivity': '2.4GHz / Bluetooth / USB-C'
-    }
-  },
-  {
-    id: 4,
-    name: 'Horizon Minimalist Weatherproof Commuter Backpack',
-    slug: 'horizon-commuter-backpack',
-    description: 'Crafted from 100% recycled Cordura ripstop nylon with YKK AquaGuard seam-sealed zippers. Features a dedicated suspended 16" laptop sleeve, magnetic Fidlock buckles, and hidden passport security pocket.',
-    price: 159.00,
-    categoryName: 'Modern Lifestyle',
-    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 35,
-    rating: 4.7,
-    reviewCount: 167,
-    isFeatured: false,
-    tags: ['backpack', 'travel', 'waterproof', 'cordura'],
-    specs: {
-      'Volume': '24 Liters',
-      'Laptop Compatibility': 'Up to 16" MacBook Pro',
-      'Fabric': '1000D Ballistic Cordura',
-      'Weight': '980g'
-    }
-  },
-  {
-    id: 5,
-    name: 'Orbit Studio Pure Sound True Wireless Earbuds',
-    slug: 'orbit-studio-wireless-earbuds',
-    description: 'Compact acoustic marvel with hybrid noise cancellation, transparency mode, spatial audio head tracking, and Qi wireless fast charging case.',
-    price: 179.00,
-    compareAtPrice: 199.00,
-    categoryName: 'Audio & Acoustics',
-    imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 64,
-    rating: 4.85,
-    reviewCount: 289,
-    isFeatured: true,
-    tags: ['earbuds', 'wireless', 'anc', 'spatial-audio'],
-    specs: {
-      'Battery': '8 hrs + 24 hrs with Case',
-      'Water Resistance': 'IPX5 Sweat Resistant',
-      'Codecs': 'LDAC, AAC, aptX Lossless'
-    }
-  },
-  {
-    id: 6,
-    name: 'Solace Ergonomic Desk Light Bar with Auto-Dimming',
-    slug: 'solace-desk-light-bar',
-    description: 'Asymmetric optical design illuminates your desk without glare on monitors. Built-in ambient light sensor balances circadian color temperatures from 2700K to 6500K.',
-    price: 89.00,
-    compareAtPrice: 110.00,
-    categoryName: 'Smart Workspace',
-    imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 50,
-    rating: 4.75,
+    stockQuantity: 20,
+    rating: 4.82,
     reviewCount: 142,
     isFeatured: false,
-    tags: ['lighting', 'desk-setup', 'ergonomic', 'led'],
+    tags: ['keyboard', 'devanagari', 'mechanical', 'hindi', 'ergonomic'],
+    emiPerMonth: 1300,
     specs: {
-      'CRI': 'Ra > 97 High Fidelity',
-      'Color Temperature': '2700K - 6500K Adjustable',
-      'Power': 'USB-C Powered (5V/2A)'
-    }
-  },
-  {
-    id: 7,
-    name: 'Aura Smart Sleep & Biometrics Recovery Ring',
-    slug: 'aura-smart-sleep-ring',
-    description: 'Featherweight titanium sleep tracker delivering medical-grade body temperature variations, HRV monitoring, and recovery score algorithms.',
-    price: 279.00,
-    categoryName: 'Wearables & Fitness',
-    imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 22,
-    rating: 4.65,
-    reviewCount: 88,
-    isFeatured: false,
-    tags: ['sleep', 'health', 'ring', 'titanium'],
-    specs: {
-      'Material': 'Brushed Titanium / Diamond-Like Carbon',
-      'Battery Life': 'Up to 7 Days',
-      'Weight': '4 to 6 grams (size dependent)'
+      'Switches': 'Custom Pre-lubed Gateron Yellow Linear',
+      'Keycaps': 'Double-shot PBT with Devanagari Sub-legends',
+      'Battery': '4,000mAh (Up to 200 Hours without RGB)',
+      'Compatibility': 'Windows, macOS, Linux, Android'
     }
   },
   {
     id: 8,
-    name: 'Zenith MagSafe 3-in-1 Fast Wireless Charging Station',
-    slug: 'zenith-magsafe-charging-station',
-    description: 'Precision machined solid aluminum weighted base. Charges iPhone at full 15W Qi2 fast speeds, Apple Watch rapid charging, and AirPods simultaneously.',
-    price: 129.00,
-    compareAtPrice: 149.00,
-    categoryName: 'Smart Workspace',
-    imageUrl: 'https://images.unsplash.com/photo-1622445262464-84b1456045b6?w=800&auto=format&fit=crop&q=80',
+    name: 'Kashmiri Mogra Saffron (10g) & Raw Forest Honey Reserve',
+    slug: 'kashmiri-saffron-forest-honey-reserve',
+    description: 'Grade-A1 certified deep-crimson saffron filaments harvested at dawn in Pampore, paired with unpasteurized multifloral honey collected by tribal cooperatives in the Jim Corbett biosphere.',
+    price: 2199.00,
+    compareAtPrice: 2899.00,
+    categoryName: 'Organics & Superfoods',
+    sellerName: 'Pampore Golden Spice Cooperative',
+    sellerCity: 'Pampore, Jammu & Kashmir',
+    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&auto=format&fit=crop&q=80',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1622445262464-84b1456045b6?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&auto=format&fit=crop&q=80'
     ],
-    stockQuantity: 40,
-    rating: 4.88,
-    reviewCount: 206,
-    isFeatured: true,
-    tags: ['charging', 'magsafe', 'apple', 'minimalist'],
-    specs: {
-      'Output': '15W MagSafe + 5W Watch + 5W Pad',
-      'Adapter Included': '45W GaN USB-C Charger',
-      'Material': 'Space Gray Aircraft Aluminum'
-    }
-  },
-  {
-    id: 9,
-    name: 'Prism 4K Ultra-Wide Color-Accurate Creator Monitor',
-    slug: 'prism-4k-ultrawide-monitor',
-    description: '32-inch 4K IPS Black panel with 99% DCI-P3 coverage, factory Delta E < 1 calibration, Thunderbolt 4 96W power delivery, and built-in KVM switch.',
-    price: 849.00,
-    compareAtPrice: 999.00,
-    categoryName: 'Smart Workspace',
-    imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 12,
-    rating: 4.92,
-    reviewCount: 74,
-    isFeatured: true,
-    tags: ['monitor', '4k', 'thunderbolt', 'creator'],
-    specs: {
-      'Resolution': '3840 x 2160 @ 120Hz',
-      'Color Gamut': '99% DCI-P3, 100% sRGB',
-      'Port Array': 'Thunderbolt 4, HDMI 2.1, DP 1.4, Hub'
-    }
-  },
-  {
-    id: 10,
-    name: 'Nomad Grade-5 Titanium Everyday Pocket Knife',
-    slug: 'nomad-titanium-pocket-knife',
-    description: 'Sleek EDC folding knife featuring a CPM-S35VN crucible steel blade, ball bearing pivot action, and deep-carry reversible titanium pocket clip.',
-    price: 119.00,
-    categoryName: 'Modern Lifestyle',
-    imageUrl: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 30,
-    rating: 4.79,
-    reviewCount: 95,
+    stockQuantity: 50,
+    rating: 4.93,
+    reviewCount: 224,
     isFeatured: false,
-    tags: ['edc', 'titanium', 'steel', 'gear'],
+    tags: ['saffron', 'honey', 'ayurvedic', 'organic', 'pampore'],
+    emiPerMonth: 733,
     specs: {
-      'Blade Steel': 'CPM-S35VN Stainless',
-      'Blade Length': '2.95 Inches (75mm)',
-      'Lock Mechanism': 'Precision Frame Lock'
-    }
-  },
-  {
-    id: 11,
-    name: 'Echo Pod Hi-Res Spatial Smart Speaker',
-    slug: 'echo-pod-smart-speaker',
-    description: 'Room-filling 360-degree acoustic performance with custom woofer, five beamforming tweeters, real-time room calibration, and lossless Wi-Fi streaming.',
-    price: 229.00,
-    compareAtPrice: 249.00,
-    categoryName: 'Audio & Acoustics',
-    imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 45,
-    rating: 4.81,
-    reviewCount: 178,
-    isFeatured: false,
-    tags: ['speaker', 'airplay', 'audio', 'smart-home'],
-    specs: {
-      'Amplification': 'Class-D Digital Amps (80W)',
-      'Connectivity': 'Wi-Fi 6, AirPlay 2, Spotify Connect',
-      'Frequency Range': '35Hz - 22,000Hz'
-    }
-  },
-  {
-    id: 12,
-    name: 'Atlas Carbon Fiber Cardholder & RFID Shield Wallet',
-    slug: 'atlas-carbon-fiber-wallet',
-    description: 'Aerospace forged carbon fiber plates with expandable silicone money strap and quick-eject mechanical thumb card slider holding up to 12 cards.',
-    price: 79.00,
-    compareAtPrice: 95.00,
-    categoryName: 'Modern Lifestyle',
-    imageUrl: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop&q=80',
-    galleryUrls: [
-      'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop&q=80'
-    ],
-    stockQuantity: 55,
-    rating: 4.87,
-    reviewCount: 310,
-    isFeatured: true,
-    tags: ['wallet', 'carbon-fiber', 'rfid', 'minimalist'],
-    specs: {
-      'Capacity': '1 to 12 Cards + Cash',
-      'Protection': 'Military RFID/NFC Blocking',
-      'Weight': '1.6 oz (45g)'
+      'Saffron Grade': 'ISO 3632 Category 1 Certified (Mogra)',
+      'Honey Processing': 'Unfiltered, Raw, Cold-Extracted',
+      'Weight': '10g Saffron + 500g Glass Jar Forest Honey',
+      'Harvest': 'Current Autumn Crop'
     }
   }
 ];
-
-export async function getHashedDemoPassword() {
-  return await bcrypt.hash('password123', 10);
-}

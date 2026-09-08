@@ -1,6 +1,8 @@
 {
-  "name": "Nexus Commerce",
-  "description": "High-fidelity modern e-commerce platform built with React, Node.js, PostgreSQL schema, JWT authentication, shopping cart, and Stripe payment integration.",
+  "name": "FinCommerce",
+  "description": "India-First unified financial & commerce platform combining UPI payments, embedded commerce, explainable lending, goal-based investments, financial health scoring, and AI financial intelligence.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

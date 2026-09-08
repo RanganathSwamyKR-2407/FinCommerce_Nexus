@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AuthProvider } from './context/AuthContext.js';
 import { CartProvider } from './context/CartContext.js';
-import { Navbar } from './components/Navbar.js';
+import { Navbar, ActiveView } from './components/Navbar.js';
 import { HeroBanner } from './components/HeroBanner.js';
 import { ProductCard } from './components/ProductCard.js';
 import { ProductFilters } from './components/ProductFilters.js';
@@ -9,6 +9,11 @@ import { ProductDetailModal } from './components/ProductDetailModal.js';
 import { CartDrawer } from './components/CartDrawer.js';
 import { CheckoutModal } from './components/CheckoutModal.js';
 import { OrderHistoryView } from './components/OrderHistoryView.js';
+import { UnifiedDashboardView } from './components/UnifiedDashboardView.js';
+import { PaymentsView } from './components/PaymentsView.js';
+import { LendingView } from './components/LendingView.js';
+import { InvestingView } from './components/InvestingView.js';
+import { AiFinancialAdvisorModal } from './components/AiFinancialAdvisorModal.js';
 import { AuthModal } from './components/AuthModal.js';
 import { NotificationToast } from './components/NotificationToast.js';
 import { Footer } from './components/Footer.js';
@@ -26,6 +31,42 @@ const initialFilterState: FilterState = {
   sort: 'featured',
 };
 
+function filterLocalProducts(items: Product[], f: FilterState): Product[] {
+  let result = [...items];
+  if (f.category && f.category !== 'all') {
+    result = result.filter((p) => p.categoryName.toLowerCase() === f.category.toLowerCase());
+  }
+  if (f.q && f.q.trim()) {
+    const query = f.q.toLowerCase().trim();
+    result = result.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.tags?.some((t) => t.toLowerCase().includes(query))
+    );
+  }
+  if (f.minPrice !== null) {
+    result = result.filter((p) => p.price >= f.minPrice!);
+  }
+  if (f.maxPrice !== null) {
+    result = result.filter((p) => p.price <= f.maxPrice!);
+  }
+  if (f.rating !== null) {
+    result = result.filter((p) => p.rating >= f.rating!);
+  }
+  if (f.inStock) {
+    result = result.filter((p) => p.stockQuantity > 0);
+  }
+  if (f.sort === 'price-low') {
+    result.sort((a, b) => a.price - b.price);
+  } else if (f.sort === 'price-high') {
+    result.sort((a, b) => b.price - a.price);
+  } else if (f.sort === 'rating') {
+    result.sort((a, b) => b.rating - a.rating);
+  }
+  return result;
+}
+
 function MainContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -35,16 +76,24 @@ function MainContent() {
 
   // Modals and Views
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [currentView, setCurrentView] = useState<'catalog' | 'orders'>('catalog');
+  const [currentView, setCurrentView] = useState<ActiveView>('catalog');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
+  const [isAiAdvisorOpen, setIsAiAdvisorOpen] = useState<boolean>(false);
 
   // Load Categories on mount
   useEffect(() => {
     fetch('/api/products/categories')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('API failed');
+        return res.json();
+      })
       .then((data) => {
-        if (data.categories) setCategories(data.categories);
+        if (data.categories && Array.isArray(data.categories)) {
+          setCategories(data.categories);
+        } else {
+          setCategories(initialCategories);
+        }
       })
       .catch(() => setCategories(initialCategories));
   }, []);
@@ -68,12 +117,14 @@ function MainContent() {
         setProducts(data.products || []);
         setTotalProducts(data.total || 0);
       } else {
-        setProducts(initialProducts);
-        setTotalProducts(initialProducts.length);
+        const filtered = filterLocalProducts(initialProducts, filters);
+        setProducts(filtered);
+        setTotalProducts(filtered.length);
       }
     } catch {
-      setProducts(initialProducts);
-      setTotalProducts(initialProducts.length);
+      const filtered = filterLocalProducts(initialProducts, filters);
+      setProducts(filtered);
+      setTotalProducts(filtered.length);
     } finally {
       setIsLoading(false);
     }
@@ -128,13 +179,30 @@ function MainContent() {
           if (currentView !== 'catalog') setCurrentView('catalog');
         }}
         categories={categories}
-        onOpenOrders={() => setCurrentView('orders')}
-        onOpenCheckout={() => setIsCheckoutOpen(true)}
+        currentView={currentView}
+        onNavigateView={(view) => {
+          setCurrentView(view);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenAiAdvisor={() => setIsAiAdvisorOpen(true)}
       />
 
       {/* Main Body with accessible id & tabIndex for skip-link */}
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-        {currentView === 'orders' ? (
+        {currentView === 'dashboard' && (
+          <UnifiedDashboardView
+            onNavigate={(view) => setCurrentView(view)}
+            onOpenAiAdvisor={() => setIsAiAdvisorOpen(true)}
+          />
+        )}
+
+        {currentView === 'payments' && <PaymentsView />}
+
+        {currentView === 'lending' && <LendingView />}
+
+        {currentView === 'investing' && <InvestingView />}
+
+        {currentView === 'orders' && (
           <OrderHistoryView
             onBack={() => setCurrentView('catalog')}
             onOpenProduct={(id) => {
@@ -142,7 +210,9 @@ function MainContent() {
               if (prod) setSelectedProduct(prod);
             }}
           />
-        ) : (
+        )}
+
+        {currentView === 'catalog' && (
           <>
             {/* Hero Section (only when on default view without active search) */}
             {!filters.q && filters.category === 'all' && (
@@ -153,6 +223,7 @@ function MainContent() {
                   const el = document.getElementById('catalog-grid');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
+                onOpenDashboard={() => setCurrentView('dashboard')}
               />
             )}
 
@@ -162,12 +233,12 @@ function MainContent() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-200 gap-4">
                 <div>
                   <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-serif tracking-tight">
-                    {filters.category === 'all' ? 'Featured Collection' : filters.category}
+                    {filters.category === 'all' ? 'Hardware & Electronics Catalog' : filters.category}
                   </h2>
                   <p className="text-xs text-slate-600 mt-1">
                     {filters.q
                       ? `Search results for "${filters.q}" (${totalProducts} products)`
-                      : `Displaying ${totalProducts} precision engineered products`}
+                      : `Displaying ${totalProducts} precision engineered products • 0% Split in 3 available`}
                   </p>
                 </div>
 
@@ -202,7 +273,7 @@ function MainContent() {
                   {isLoading ? (
                     <div className="py-24 text-center" aria-live="polite">
                       <div className="w-9 h-9 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" aria-hidden="true" />
-                      <p className="text-xs text-slate-600 font-medium">Retrieving catalog records from PostgreSQL...</p>
+                      <p className="text-xs text-slate-600 font-medium">Retrieving verified catalog records...</p>
                     </div>
                   ) : products.length === 0 ? (
                     <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4 my-8" role="status">
@@ -303,6 +374,15 @@ function MainContent() {
         onViewOrderHistory={() => {
           setIsCheckoutOpen(false);
           setCurrentView('orders');
+        }}
+      />
+
+      <AiFinancialAdvisorModal
+        isOpen={isAiAdvisorOpen}
+        onClose={() => setIsAiAdvisorOpen(false)}
+        onNavigateToView={(view) => {
+          setIsAiAdvisorOpen(false);
+          setCurrentView(view);
         }}
       />
 

@@ -10,6 +10,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  refreshUser: () => Promise<void>;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
   authModalMode: 'signin' | 'signup';
@@ -20,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = 'nexus_auth_token';
+const TOKEN_KEY = 'fincommerce_auth_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -145,6 +146,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshUser = async () => {
+    if (token) {
+      await fetchUserProfile(token);
+    } else {
+      try {
+        const response = await fetch('/api/dashboard');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user) setUser(data.user);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  };
+
   const openSignIn = () => {
     setAuthModalMode('signin');
     setIsAuthModalOpen(true);
@@ -166,6 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         register,
         logout,
         updateProfile,
+        refreshUser,
         isAuthModalOpen,
         setIsAuthModalOpen,
         authModalMode,

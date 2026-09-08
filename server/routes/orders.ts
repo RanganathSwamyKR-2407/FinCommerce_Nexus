@@ -119,15 +119,15 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response) => {
 
     const order = await db.createOrder({
       userId,
-      customerEmail: customerEmail || req.user?.email || 'guest@nexuscommerce.com',
+      customerEmail: customerEmail || req.user?.email || 'guest@fincommerce.in',
       items,
       shippingName,
       shippingAddress,
       shippingCity,
       shippingPostalCode,
-      shippingCountry: shippingCountry || 'United States',
-      shippingMethod: shippingMethod || 'Standard Ground (3-5 Days)',
-      paymentIntentId,
+      shippingCountry: shippingCountry || 'India',
+      shippingMethod: shippingMethod || 'Bluedart Express Surface (2-3 Days)',
+      paymentMethod: (req.body.paymentMethod as any) || 'upi_instant',
     });
 
     res.status(201).json({

@@ -20,7 +20,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const GUEST_CART_KEY = 'nexus_guest_cart';
+const GUEST_CART_KEY = 'fincommerce_guest_cart';
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, token } = useAuth();
@@ -232,12 +232,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems([]);
   };
 
-  // Calculations
+  // Calculations for FinCommerce (INR, 18% GST, Free shipping over ₹999)
   const subtotal = items.reduce((acc, item) => acc + (item.product?.price || 0) * item.quantity, 0);
-  const tax = subtotal * 0.08;
-  const shipping = subtotal >= 100 || subtotal === 0 ? 0 : 15.00;
+  const tax = subtotal * 0.18;
+  const shipping = subtotal >= 999 || subtotal === 0 ? 0 : 99.00;
   const total = subtotal + tax + shipping;
-  const freeShippingThreshold = 100;
+  const freeShippingThreshold = 999;
   const amountToFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 

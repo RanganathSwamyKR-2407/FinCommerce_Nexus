@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext.js';
+import { formatInr } from '../utils/format.js';
 
 interface CartDrawerProps {
   onCheckout: () => void;
@@ -91,7 +92,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
               <span className="flex items-center">
                 <Sparkles className="w-3.5 h-3.5 mr-1 text-indigo-600" aria-hidden="true" />
                 {summary.amountToFreeShipping > 0
-                  ? `Add $${summary.amountToFreeShipping.toFixed(2)} more for Free Shipping`
+                  ? `Add ${formatInr(summary.amountToFreeShipping)} more for Free Express Shipping`
                   : 'You unlocked Free Express Shipping!'}
               </span>
               <span className="text-[11px] text-indigo-700 font-bold">{progressPercent}%</span>
@@ -120,7 +121,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
                 </div>
                 <h3 className="text-base font-bold text-slate-800 font-serif">Your cart is empty</h3>
                 <p className="text-xs text-slate-600 max-w-xs leading-relaxed">
-                  Explore our curated audio instruments, keyboards, and precision lifestyle equipment.
+                  Explore our curated audio instruments, soundboxes, and precision lifestyle equipment.
                 </p>
                 <button
                   type="button"
@@ -155,7 +156,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
                         </button>
                       </div>
                       <span className="text-[11px] text-slate-500 font-medium">
-                        ${item.product?.price.toFixed(2)} each
+                        {formatInr(item.product?.price)} each
                       </span>
                     </div>
 
@@ -184,7 +185,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
                       </div>
 
                       <span className="text-xs font-black text-slate-900">
-                        ${((item.product?.price || 0) * item.quantity).toFixed(2)}
+                        {formatInr((item.product?.price || 0) * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -199,11 +200,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-slate-700">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-slate-900">${summary.subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-900">{formatInr(summary.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-700">
-                  <span>Estimated Tax (8%)</span>
-                  <span className="font-semibold text-slate-900">${summary.tax.toFixed(2)}</span>
+                  <span>GST (18% Goods & Services Tax)</span>
+                  <span className="font-semibold text-slate-900">{formatInr(summary.tax)}</span>
                 </div>
                 <div className="flex justify-between text-slate-700">
                   <span>Shipping</span>
@@ -211,14 +212,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
                     {summary.shipping === 0 ? (
                       <span className="text-emerald-700 font-bold">FREE</span>
                     ) : (
-                      `$${summary.shipping.toFixed(2)}`
+                      formatInr(summary.shipping)
                     )}
                   </span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 flex justify-between text-sm">
-                  <span className="font-bold text-slate-900">Total</span>
+                  <span className="font-bold text-slate-900">Total Amount</span>
                   <span className="font-black text-slate-900 text-base">
-                    ${summary.total.toFixed(2)}
+                    {formatInr(summary.total)}
                   </span>
                 </div>
               </div>
@@ -246,7 +247,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
                     Clear cart
                   </button>
                   <span className="flex items-center">
-                    <ShieldCheck className="w-3.5 h-3.5 mr-1 text-sky-600" aria-hidden="true" /> Stripe 256-Bit SSL
+                    <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-600" aria-hidden="true" /> NPCI UPI & 256-Bit Encrypted
                   </span>
                 </div>
               </div>

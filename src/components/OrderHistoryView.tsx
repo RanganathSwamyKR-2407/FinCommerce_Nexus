@@ -3,6 +3,7 @@ import { Package, Truck, Calendar, MapPin, Search, Copy, Check, ArrowLeft, Refre
 import { Order } from '../types/index.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useCart } from '../context/CartContext.js';
+import { formatInr } from '../utils/format.js';
 
 interface OrderHistoryViewProps {
   onBack: () => void;
@@ -233,13 +234,13 @@ export const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ onBack }) =>
 
                     <div className="flex justify-between items-baseline text-xs">
                       <span className={selectedOrder?.id === order.id ? 'text-slate-300' : 'text-slate-600'}>
-                        {new Date(order.createdAt).toLocaleDateString(undefined, {
+                        {new Date(order.createdAt).toLocaleDateString('en-IN', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',
                         })}
                       </span>
-                      <span className="font-black text-sm">${order.totalAmount.toFixed(2)}</span>
+                      <span className="font-black text-sm">{formatInr(order.totalAmount)}</span>
                     </div>
 
                     <div className={`text-[11px] mt-2 truncate ${selectedOrder?.id === order.id ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -371,12 +372,12 @@ export const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ onBack }) =>
                         <div>
                           <h4 className="text-sm font-bold text-slate-900 leading-snug">{item.productName}</h4>
                           <p className="text-xs text-slate-500 mt-0.5">
-                            ${item.price.toFixed(2)} × {item.quantity}
+                            {formatInr(item.price)} × {item.quantity}
                           </p>
                         </div>
                       </div>
                       <span className="text-sm font-black text-slate-900">
-                        ${item.subtotal.toFixed(2)}
+                        {formatInr(item.subtotal)}
                       </span>
                     </div>
                   ))}
@@ -401,21 +402,21 @@ export const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ onBack }) =>
                 <div className="space-y-1.5 text-xs bg-slate-50 p-4 rounded-2xl">
                   <div className="flex justify-between text-slate-700">
                     <span>Items Subtotal:</span>
-                    <span className="font-semibold text-slate-900">${selectedOrder.subtotal.toFixed(2)}</span>
+                    <span className="font-semibold text-slate-900">{formatInr(selectedOrder.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-slate-700">
-                    <span>Tax (8%):</span>
-                    <span className="font-semibold text-slate-900">${selectedOrder.taxAmount.toFixed(2)}</span>
+                    <span>GST (18%):</span>
+                    <span className="font-semibold text-slate-900">{formatInr(selectedOrder.taxAmount)}</span>
                   </div>
                   <div className="flex justify-between text-slate-700">
                     <span>Shipping:</span>
                     <span className="font-semibold text-slate-900">
-                      {selectedOrder.shippingFee === 0 ? 'FREE' : `$${selectedOrder.shippingFee.toFixed(2)}`}
+                      {selectedOrder.shippingFee === 0 ? 'FREE' : formatInr(selectedOrder.shippingFee)}
                     </span>
                   </div>
                   <div className="pt-2 border-t border-slate-200 flex justify-between text-sm">
                     <span className="font-bold text-slate-900">Grand Total:</span>
-                    <span className="font-black text-slate-900 text-base">${selectedOrder.totalAmount.toFixed(2)}</span>
+                    <span className="font-black text-slate-900 text-base">{formatInr(selectedOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Star, ShoppingBag, Eye, Check } from 'lucide-react';
+import { Star, ShoppingBag, Eye, Check, Zap, ShieldCheck } from 'lucide-react';
 import { Product } from '../types/index.js';
 import { useCart } from '../context/CartContext.js';
+import { formatInr } from '../utils/format.js';
 
 interface ProductCardProps {
   product: Product;
@@ -27,7 +28,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
     <article
       tabIndex={0}
       role="button"
-      aria-label={`${product.name}, price $${product.price.toFixed(2)}, rating ${product.rating} stars`}
+      aria-label={`${product.name}, price ${formatInr(product.price)}, rating ${product.rating} stars`}
       onClick={() => onSelect(product)}
       onKeyDown={handleKeyDown}
       className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none transition-all duration-300 flex flex-col cursor-pointer"
@@ -53,6 +54,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
           {discountPercent && (
             <span className="bg-rose-600 text-white px-2 py-0.5 rounded-md text-[11px] font-black tracking-tight">
               -{discountPercent}%
+            </span>
+          )}
+          {product.fastDeliveryHours && (
+            <span className="bg-amber-500 text-slate-950 px-2 py-0.5 rounded-md text-[10px] font-extrabold flex items-center space-x-1 shadow-sm">
+              <Zap className="w-2.5 h-2.5 fill-slate-950" />
+              <span>{product.fastDeliveryHours}h Express</span>
             </span>
           )}
         </div>
@@ -84,19 +91,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
             {product.name}
           </h3>
 
+          {product.sellerName && (
+            <div className="flex items-center space-x-1 text-[11px] text-slate-500 mt-1 font-medium">
+              <ShieldCheck className="w-3 h-3 text-emerald-600" />
+              <span>{product.sellerName}</span>
+            </div>
+          )}
+
           <p className="text-xs text-slate-600 line-clamp-2 mt-1.5 font-normal leading-relaxed">
             {product.description}
           </p>
         </div>
 
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-          <div className="flex items-baseline space-x-1.5">
-            <span className="text-lg font-black text-slate-900">
-              ${product.price.toFixed(2)}
-            </span>
-            {product.compareAtPrice && (
-              <span className="text-xs text-slate-500 line-through font-medium">
-                ${product.compareAtPrice.toFixed(2)}
+          <div>
+            <div className="flex items-baseline space-x-1.5">
+              <span className="text-lg font-black text-slate-900">
+                {formatInr(product.price)}
+              </span>
+              {product.compareAtPrice && (
+                <span className="text-xs text-slate-500 line-through font-medium">
+                  {formatInr(product.compareAtPrice)}
+                </span>
+              )}
+            </div>
+            {product.emiPerMonth && (
+              <span className="text-[11px] font-semibold text-indigo-600 block">
+                or {formatInr(product.emiPerMonth)}/mo EMI
               </span>
             )}
           </div>

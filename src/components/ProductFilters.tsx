@@ -104,7 +104,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       {/* Price Range Fieldset */}
       <fieldset className="space-y-2 pt-2 border-t border-slate-100">
-        <legend className="text-xs font-bold text-slate-800 mb-1">Price Range ($)</legend>
+        <legend className="text-xs font-bold text-slate-800 mb-1">Price Range (₹)</legend>
         <div className="grid grid-cols-2 gap-2">
           <div>
             <label htmlFor="filter-min-price" className="text-[11px] text-slate-600 block mb-0.5">Min Price</label>
@@ -127,7 +127,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({
             <input
               type="number"
               id="filter-max-price"
-              placeholder="1000"
+              placeholder="50000"
               min="0"
               value={filters.maxPrice ?? ''}
               onChange={(e) =>

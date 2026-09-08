@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 import { config } from './server/config.js';
 import { initDatabase } from './server/db/database.js';
 import authRoutes from './server/routes/auth.js';
@@ -10,13 +9,18 @@ import productRoutes from './server/routes/products.js';
 import cartRoutes from './server/routes/cart.js';
 import orderRoutes from './server/routes/orders.js';
 import paymentRoutes from './server/routes/payment.js';
+import paymentsRoutes from './server/routes/payments.js';
+import dashboardRoutes from './server/routes/dashboard.js';
+import loanRoutes from './server/routes/loans.js';
+import investmentRoutes from './server/routes/investments.js';
+import aiRoutes from './server/routes/ai.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = process.env.APPLET_ID ? 3000 : (Number(process.env.PORT) || 3000);
 
   // Initialize Database
   await initDatabase();
@@ -29,7 +33,7 @@ async function startServer() {
   app.get('/api/health', (_req, res) => {
     res.json({
       status: 'ok',
-      service: 'Nexus E-Commerce API',
+      service: 'FinCommerce API',
       version: '1.0.0',
       timestamp: new Date().toISOString(),
     });
@@ -40,6 +44,11 @@ async function startServer() {
   app.use('/api/cart', cartRoutes);
   app.use('/api/orders', orderRoutes);
   app.use('/api/payment', paymentRoutes);
+  app.use('/api/payments', paymentsRoutes);
+  app.use('/api/dashboard', dashboardRoutes);
+  app.use('/api/loans', loanRoutes);
+  app.use('/api/investments', investmentRoutes);
+  app.use('/api/ai', aiRoutes);
 
   // Catch unhandled API requests
   app.all('/api/*', (_req, res) => {
@@ -47,7 +56,9 @@ async function startServer() {
   });
 
   // Vite middleware for development vs Static file server for production
-  if (process.env.NODE_ENV !== 'production') {
+  const isProduction = process.env.NODE_ENV === 'production' || import.meta.url.includes('/dist/');
+  if (!isProduction) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
