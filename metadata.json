@@ -1,0 +1,6 @@
+{
+  "name": "Nexus Commerce",
+  "description": "High-fidelity modern e-commerce platform built with React, Node.js, PostgreSQL schema, JWT authentication, shopping cart, and Stripe payment integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

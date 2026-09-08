@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Relational Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexus_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: nexus_commerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexus_commerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nexus_network
+
+  # Node.js + React Full-Stack Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexus_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/nexus_commerce
+      JWT_SECRET: nexus_ecommerce_production_jwt_secret_key
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+    ports:
+      - "3000:3000"
+    networks:
+      - nexus_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  nexus_network:
+    driver: bridge
