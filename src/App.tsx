@@ -13,6 +13,7 @@ import { AuthModal } from './components/AuthModal.js';
 import { NotificationToast } from './components/NotificationToast.js';
 import { Footer } from './components/Footer.js';
 import { Product, Category, FilterState } from './types/index.js';
+import { initialCategories, initialProducts } from '../server/db/seedData.js';
 import { Search, Filter, X } from 'lucide-react';
 
 const initialFilterState: FilterState = {
@@ -45,7 +46,7 @@ function MainContent() {
       .then((data) => {
         if (data.categories) setCategories(data.categories);
       })
-      .catch((err) => console.error('Error fetching categories:', err));
+      .catch(() => setCategories(initialCategories));
   }, []);
 
   // Fetch Products based on current filters
@@ -66,9 +67,13 @@ function MainContent() {
         const data = await response.json();
         setProducts(data.products || []);
         setTotalProducts(data.total || 0);
+      } else {
+        setProducts(initialProducts);
+        setTotalProducts(initialProducts.length);
       }
-    } catch (err) {
-      console.error('Error fetching products:', err);
+    } catch {
+      setProducts(initialProducts);
+      setTotalProducts(initialProducts.length);
     } finally {
       setIsLoading(false);
     }
