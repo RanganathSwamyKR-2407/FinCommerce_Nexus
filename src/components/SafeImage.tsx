@@ -11,6 +11,7 @@ const CATEGORY_FALLBACKS: Record<string, string> = {
   'Artisanal & Handloom': 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=1200&auto=format&fit=crop&q=85',
   'Workspace & Ergonomics': 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=1200&auto=format&fit=crop&q=85',
   'Organics & Superfoods': 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=85',
+  'SaaS & Cloud Software': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=85',
   default: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=1200&auto=format&fit=crop&q=85',
 };
 

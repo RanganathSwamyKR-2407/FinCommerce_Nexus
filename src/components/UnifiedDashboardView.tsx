@@ -16,14 +16,15 @@ import {
   Plus,
   Coins,
   ChevronRight,
-  MessageSquare
+  MessageSquare,
+  Layers
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { DashboardData } from '../types/index.js';
 import { formatInr } from '../utils/format.js';
 
 interface UnifiedDashboardViewProps {
-  onNavigate: (view: 'catalog' | 'payments' | 'lending' | 'investing' | 'orders') => void;
+  onNavigate: (view: 'catalog' | 'payments' | 'lending' | 'investing' | 'orders' | 'saas') => void;
   onOpenAiAdvisor: () => void;
 }
 
@@ -282,6 +283,13 @@ export const UnifiedDashboardView: React.FC<UnifiedDashboardViewProps> = ({
           >
             <Coins className="w-3.5 h-3.5 text-amber-600" />
             <span>SIP Simulator & Gold</span>
+          </button>
+          <button
+            onClick={() => onNavigate('saas')}
+            className="px-3 py-1.5 bg-white border border-indigo-200 hover:border-indigo-400 rounded-xl text-xs font-bold text-indigo-700 flex items-center space-x-1.5 shadow-2xs"
+          >
+            <Layers className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Merchant SaaS Hub</span>
           </button>
           <button
             onClick={onOpenAiAdvisor}

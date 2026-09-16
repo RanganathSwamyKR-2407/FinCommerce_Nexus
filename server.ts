@@ -14,6 +14,7 @@ import dashboardRoutes from './server/routes/dashboard.js';
 import loanRoutes from './server/routes/loans.js';
 import investmentRoutes from './server/routes/investments.js';
 import aiRoutes from './server/routes/ai.js';
+import saasRoutes from './server/routes/saas.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,6 +50,7 @@ async function startServer() {
   app.use('/api/loans', loanRoutes);
   app.use('/api/investments', investmentRoutes);
   app.use('/api/ai', aiRoutes);
+  app.use('/api/saas', saasRoutes);
 
   // Catch unhandled API requests
   app.all('/api/*', (_req, res) => {

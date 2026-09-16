@@ -13,12 +13,13 @@ import {
   Smartphone,
   CreditCard,
   TrendingUp,
-  LayoutDashboard
+  LayoutDashboard,
+  Layers
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.js';
 import { useCart } from '../context/CartContext.js';
 
-export type ActiveView = 'catalog' | 'dashboard' | 'payments' | 'lending' | 'investing' | 'orders';
+export type ActiveView = 'catalog' | 'dashboard' | 'payments' | 'lending' | 'investing' | 'orders' | 'saas';
 
 interface NavbarProps {
   searchQuery: string;
@@ -235,6 +236,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                       role="menuitem"
                       onClick={() => {
                         setIsUserMenuOpen(false);
+                        onNavigateView('saas');
+                      }}
+                      className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center space-x-2 focus-visible:bg-slate-50 focus-visible:outline-none"
+                    >
+                      <Layers className="w-4 h-4 text-indigo-600" aria-hidden="true" />
+                      <span>Merchant SaaS & Cloud Suite</span>
+                    </button>
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
                         onNavigateView('orders');
                       }}
                       className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center space-x-2 focus-visible:bg-slate-50 focus-visible:outline-none"
@@ -355,6 +367,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <TrendingUp className="w-3.5 h-3.5" />
             <span>Invest & 24K Gold</span>
+          </button>
+
+          <button
+            onClick={() => onNavigateView('saas')}
+            aria-current={currentView === 'saas' ? 'page' : undefined}
+            className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all flex items-center space-x-1.5 ${
+              currentView === 'saas'
+                ? 'bg-indigo-600 text-white shadow-xs'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Merchant SaaS</span>
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-700 border border-emerald-500/30">
+              PRO
+            </span>
           </button>
 
           <button

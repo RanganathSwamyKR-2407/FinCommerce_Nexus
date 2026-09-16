@@ -13,6 +13,7 @@ import { UnifiedDashboardView } from './components/UnifiedDashboardView.js';
 import { PaymentsView } from './components/PaymentsView.js';
 import { LendingView } from './components/LendingView.js';
 import { InvestingView } from './components/InvestingView.js';
+import { SaasView } from './components/SaasView.js';
 import { AiFinancialAdvisorModal } from './components/AiFinancialAdvisorModal.js';
 import { AuthModal } from './components/AuthModal.js';
 import { NotificationToast } from './components/NotificationToast.js';
@@ -201,6 +202,13 @@ function MainContent() {
         {currentView === 'lending' && <LendingView />}
 
         {currentView === 'investing' && <InvestingView />}
+
+        {currentView === 'saas' && (
+          <SaasView
+            onNavigateToCatalog={() => setCurrentView('catalog')}
+            onNavigateToDashboard={() => setCurrentView('dashboard')}
+          />
+        )}
 
         {currentView === 'orders' && (
           <OrderHistoryView

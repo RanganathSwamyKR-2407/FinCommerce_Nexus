@@ -167,6 +167,96 @@ export interface DBOrder {
   items: DBOrderItem[];
 }
 
+export interface DBSaasPlan {
+  id: 'starter' | 'growth' | 'enterprise';
+  name: string;
+  tagline: string;
+  monthlyPrice: number;
+  annualPrice: number;
+  badge?: string;
+  recommended?: boolean;
+  features: string[];
+  limits: {
+    maxInvoicesPerMonth: number | 'unlimited';
+    apiRequestsPerMin: number;
+    teamSeats: number;
+    transactionMdrPercent: number;
+  };
+}
+
+export interface DBSaasSubscription {
+  id: string;
+  userId: number;
+  planId: 'starter' | 'growth' | 'enterprise';
+  planName: string;
+  status: 'active' | 'trialing' | 'past_due' | 'cancelled';
+  billingCycle: 'monthly' | 'annual';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  autoRenew: boolean;
+  paymentMethod: 'upi_autopay' | 'credit_line' | 'hdfc_netbanking';
+  amount: number;
+  nextBillingDate: string;
+  mandateRef: string;
+}
+
+export interface DBSaasInvoice {
+  id: string;
+  invoiceNumber: string;
+  userId: number;
+  clientName: string;
+  clientGstin: string;
+  clientEmail: string;
+  clientState: string;
+  itemDescription: string;
+  hsnCode: string;
+  subtotal: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  totalAmount: number;
+  status: 'paid' | 'pending' | 'overdue';
+  dueDate: string;
+  paymentLink: string;
+  createdAt: string;
+}
+
+export interface DBSaasCustomerSubscription {
+  id: string;
+  userId: number;
+  customerName: string;
+  customerEmail: string;
+  customerUpi: string;
+  planName: string;
+  mrrAmount: number;
+  frequency: 'monthly' | 'quarterly' | 'annual';
+  status: 'active' | 'paused' | 'cancelled';
+  mandateRef: string;
+  nextChargeDate: string;
+  lastChargedAt: string;
+}
+
+export interface DBSaasApiKey {
+  id: string;
+  userId: number;
+  keyType: 'live' | 'test';
+  name: string;
+  prefix: string;
+  maskedKey: string;
+  fullKey?: string;
+  createdAt: string;
+  lastUsedAt: string;
+}
+
+export interface DBSaasWebhookLog {
+  id: string;
+  event: 'payment.captured' | 'subscription.renewed' | 'invoice.paid' | 'mandate.authorized';
+  status: 'delivered' | 'failed';
+  httpCode: number;
+  timestamp: string;
+  payload: Record<string, any>;
+}
+
 // In-memory relational store
 class InMemStore {
   users: DBUser[] = [];
@@ -179,6 +269,11 @@ class InMemStore {
   mandates: DBAutoPayMandate[] = [];
   loans: DBLoanApplication[] = [];
   investments: DBInvestment[] = [];
+  saasSubscriptions: DBSaasSubscription[] = [];
+  saasInvoices: DBSaasInvoice[] = [];
+  saasCustomerSubscriptions: DBSaasCustomerSubscription[] = [];
+  saasApiKeys: DBSaasApiKey[] = [];
+  saasWebhookLogs: DBSaasWebhookLog[] = [];
 
   userIdCounter = 2;
   orderIdCounter = 3;
@@ -558,6 +653,219 @@ class InMemStore {
         }
       ]
     });
+
+    // Seed SaaS Subscription for Priya Sharma (User 1)
+    this.saasSubscriptions.push({
+      id: 'SUB-GROWTH-2026-01',
+      userId: 1,
+      planId: 'growth',
+      planName: 'Growth Business Pro',
+      status: 'active',
+      billingCycle: 'monthly',
+      currentPeriodStart: new Date(Date.now() - 15 * 24 * 3600 * 1000).toISOString(),
+      currentPeriodEnd: new Date(Date.now() + 15 * 24 * 3600 * 1000).toISOString(),
+      autoRenew: true,
+      paymentMethod: 'upi_autopay',
+      amount: 1499,
+      nextBillingDate: '2026-10-01',
+      mandateRef: 'FC-AUTOPAY-MNDT-99201',
+    });
+
+    // Seed SaaS Invoices for User 1's business
+    this.saasInvoices.push(
+      {
+        id: 'INV-2026-0842',
+        invoiceNumber: 'FC-GST-2026-0842',
+        userId: 1,
+        clientName: 'Zomato Hyperpure India Pvt Ltd',
+        clientGstin: '29AAACZ1234F1Z8',
+        clientEmail: 'procurement@zomato.com',
+        clientState: 'Karnataka (29)',
+        itemDescription: 'Wholesale Single-Estate Arabica Roast & Barista Hardware Suite',
+        hsnCode: '09012190',
+        subtotal: 42000,
+        cgst: 3780,
+        sgst: 3780,
+        igst: 0,
+        totalAmount: 49560,
+        status: 'paid',
+        dueDate: '2026-09-20',
+        paymentLink: 'https://fincommerce.in/pay/inv_9984120',
+        createdAt: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: 'INV-2026-0841',
+        invoiceNumber: 'FC-GST-2026-0841',
+        userId: 1,
+        clientName: 'FabIndia Overseas Private Ltd',
+        clientGstin: '07AAACF2914G1Z2',
+        clientEmail: 'accounts@fabindia.net',
+        clientState: 'Delhi (07)',
+        itemDescription: 'Handwoven Cashmere Pashmina Consignment Q3 (Interstate)',
+        hsnCode: '62142010',
+        subtotal: 88000,
+        cgst: 0,
+        sgst: 0,
+        igst: 10560,
+        totalAmount: 98560,
+        status: 'paid',
+        dueDate: '2026-09-15',
+        paymentLink: 'https://fincommerce.in/pay/inv_9984119',
+        createdAt: new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString(),
+      },
+      {
+        id: 'INV-2026-0843',
+        invoiceNumber: 'FC-GST-2026-0843',
+        userId: 1,
+        clientName: 'Chai Point (Mountain Trail Foods)',
+        clientGstin: '29AABCM8291H1Z5',
+        clientEmail: 'finance@chaipoint.com',
+        clientState: 'Karnataka (29)',
+        itemDescription: 'FinCommerce Bharat Soundbox 4G Terminals & Cloud Setup (Batch 1)',
+        hsnCode: '85176290',
+        subtotal: 18990,
+        cgst: 1709.1,
+        sgst: 1709.1,
+        igst: 0,
+        totalAmount: 22408.2,
+        status: 'pending',
+        dueDate: '2026-09-28',
+        paymentLink: 'https://fincommerce.in/pay/inv_9984121',
+        createdAt: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+      }
+    );
+
+    // Seed Customer Subscriptions managed via merchant's UPI Autopay Engine
+    this.saasCustomerSubscriptions.push(
+      {
+        id: 'CSUB-991',
+        userId: 1,
+        customerName: 'Kalyan Retailers (Koramangala)',
+        customerEmail: 'ops@kalyanretail.in',
+        customerUpi: 'kalyan.pos@hdfcbank',
+        planName: 'Enterprise Micro-POS & Soundbox Cloud',
+        mrrAmount: 2999,
+        frequency: 'monthly',
+        status: 'active',
+        mandateRef: 'UMN/KALYAN/2026/8812',
+        nextChargeDate: '2026-10-02',
+        lastChargedAt: '2026-09-02',
+      },
+      {
+        id: 'CSUB-992',
+        userId: 1,
+        customerName: 'Third Wave Coffee Roasters',
+        customerEmail: 'billing@thirdwave.coffee',
+        customerUpi: 'thirdwave.ops@icici',
+        planName: 'Growth Billing & Loyalty SDK',
+        mrrAmount: 1499,
+        frequency: 'monthly',
+        status: 'active',
+        mandateRef: 'UMN/THIRDWAVE/2026/9012',
+        nextChargeDate: '2026-10-05',
+        lastChargedAt: '2026-09-05',
+      },
+      {
+        id: 'CSUB-993',
+        userId: 1,
+        customerName: 'Bombay Sweet Shop Retail',
+        customerEmail: 'accounts@bombaysweets.in',
+        customerUpi: 'bombaysweets@axisbank',
+        planName: 'Growth Billing & UPI Autopay Engine',
+        mrrAmount: 1499,
+        frequency: 'monthly',
+        status: 'active',
+        mandateRef: 'UMN/BOMBAY/2026/7719',
+        nextChargeDate: '2026-10-12',
+        lastChargedAt: '2026-09-12',
+      },
+      {
+        id: 'CSUB-994',
+        userId: 1,
+        customerName: 'Blue Tokai Coffee Roasters',
+        customerEmail: 'finance@bluetokaicoffee.com',
+        customerUpi: 'bluetokai@yesbank',
+        planName: 'Growth Billing & Loyalty SDK',
+        mrrAmount: 1499,
+        frequency: 'monthly',
+        status: 'paused',
+        mandateRef: 'UMN/BLUETOKAI/2026/4412',
+        nextChargeDate: '2026-10-18',
+        lastChargedAt: '2026-08-18',
+      }
+    );
+
+    // Seed SaaS Developer API Keys
+    this.saasApiKeys.push(
+      {
+        id: 'KEY-01',
+        userId: 1,
+        keyType: 'live',
+        name: 'Production Webhook & POS Connector',
+        prefix: 'fc_live_',
+        maskedKey: 'fc_live_••••••••••••••••9a8f4c1b',
+        fullKey: 'fc_live_9a8f4c1b92049e771038bc4a01948ef2',
+        createdAt: new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString(),
+        lastUsedAt: 'Just now (2 mins ago)',
+      },
+      {
+        id: 'KEY-02',
+        userId: 1,
+        keyType: 'test',
+        name: 'Staging / Sandbox Test Environment',
+        prefix: 'fc_test_',
+        maskedKey: 'fc_test_••••••••••••••••3d7e8291',
+        fullKey: 'fc_test_3d7e82910a55bc99201f84b17728aa91',
+        createdAt: new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString(),
+        lastUsedAt: 'Yesterday at 18:42',
+      }
+    );
+
+    // Seed Webhook Simulation Logs
+    this.saasWebhookLogs.push(
+      {
+        id: 'WH-8910',
+        event: 'payment.captured',
+        status: 'delivered',
+        httpCode: 200,
+        timestamp: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+        payload: {
+          event: 'payment.captured',
+          amount: 49560,
+          currency: 'INR',
+          upi_ref: 'FC-UPI-8849102',
+          customer: 'Zomato Hyperpure India Pvt Ltd',
+        },
+      },
+      {
+        id: 'WH-8909',
+        event: 'subscription.renewed',
+        status: 'delivered',
+        httpCode: 200,
+        timestamp: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+        payload: {
+          event: 'subscription.renewed',
+          subscription_id: 'CSUB-991',
+          customer_upi: 'kalyan.pos@hdfcbank',
+          amount: 2999,
+          mandate_ref: 'UMN/KALYAN/2026/8812',
+        },
+      },
+      {
+        id: 'WH-8908',
+        event: 'invoice.paid',
+        status: 'delivered',
+        httpCode: 200,
+        timestamp: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+        payload: {
+          event: 'invoice.paid',
+          invoice_id: 'INV-2026-0841',
+          amount: 98560,
+          mode: 'UPI_AUTOPAY',
+          gstin: '07AAACF2914G1Z2',
+        },
+      }
+    );
   }
 }
 
@@ -1199,4 +1507,421 @@ export const db = {
     memStore.orders.unshift(newOrder);
     return JSON.parse(JSON.stringify(newOrder));
   },
+
+  // SAAS & BUSINESS SUITE REPOSITORY
+  getSaasPlans(): DBSaasPlan[] {
+    return [
+      {
+        id: 'starter',
+        name: 'Starter Merchant',
+        tagline: 'Ideal for early-stage artisans, independent creators & pilot storefronts',
+        monthlyPrice: 0,
+        annualPrice: 0,
+        features: [
+          'Up to 15 manual GST invoices per month',
+          'Dynamic UPI QR code generation',
+          'Basic payment confirmation webhooks',
+          'Email invoice PDF delivery',
+          '1 Store Admin team seat',
+          '1.8% standard UPI payment MDR'
+        ],
+        limits: {
+          maxInvoicesPerMonth: 15,
+          apiRequestsPerMin: 60,
+          teamSeats: 1,
+          transactionMdrPercent: 1.8
+        }
+      },
+      {
+        id: 'growth',
+        name: 'Growth Business Pro',
+        tagline: 'For scaling retail stores, high-traffic D2C brands & regional merchants',
+        monthlyPrice: 1499,
+        annualPrice: 14990,
+        recommended: true,
+        badge: 'MOST POPULAR',
+        features: [
+          'Unlimited GST E-Invoices & E-Way Bills',
+          'UPI Autopay recurring customer billing engine',
+          'Sub-second Government IRP IRN generation',
+          'Automated WhatsApp Business PDF dispatch',
+          'AI Cash Flow & Predictive MRR Forecaster',
+          '5 Multi-role team seats (Owner, Cashier, Accountant)',
+          '1,000 API req/min with live webhooks',
+          '0.9% discounted platform transaction fee'
+        ],
+        limits: {
+          maxInvoicesPerMonth: 'unlimited',
+          apiRequestsPerMin: 1000,
+          teamSeats: 5,
+          transactionMdrPercent: 0.9
+        }
+      },
+      {
+        id: 'enterprise',
+        name: 'Enterprise FinTech Suite',
+        tagline: 'For high-volume retail chains, omni-channel distributors & FinTech platforms',
+        monthlyPrice: 4999,
+        annualPrice: 49990,
+        badge: 'ENTERPRISE SLA',
+        features: [
+          'Everything in Growth Business Pro included',
+          'Tally Prime & Zoho Books bi-directional sync',
+          'White-label custom domain checkout & invoices',
+          'Multi-branch & warehouse inventory sync',
+          'Unlimited team seats & audit logs',
+          '10,000 API req/min with 99.99% uptime SLA',
+          'Dedicated 24/7 Relationship Manager & Slack channel',
+          '0.4% VIP enterprise payment processing rate'
+        ],
+        limits: {
+          maxInvoicesPerMonth: 'unlimited',
+          apiRequestsPerMin: 10000,
+          teamSeats: 999,
+          transactionMdrPercent: 0.4
+        }
+      }
+    ];
+  },
+
+  async getSaasOverview(userId: number) {
+    const plans = this.getSaasPlans();
+    let subscription = memStore.saasSubscriptions.find(s => s.userId === userId);
+    
+    // Auto-create default Growth tier for User 1 or Starter for others
+    if (!subscription) {
+      subscription = {
+        id: 'SUB-' + Math.floor(10000 + Math.random() * 90000),
+        userId,
+        planId: userId === 1 ? 'growth' : 'starter',
+        planName: userId === 1 ? 'Growth Business Pro' : 'Starter Merchant',
+        status: 'active',
+        billingCycle: 'monthly',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+        autoRenew: true,
+        paymentMethod: 'upi_autopay',
+        amount: userId === 1 ? 1499 : 0,
+        nextBillingDate: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+        mandateRef: 'FC-AUTOPAY-MNDT-' + Math.floor(10000 + Math.random() * 90000),
+      };
+      memStore.saasSubscriptions.push(subscription);
+    }
+
+    const invoices = memStore.saasInvoices.filter(i => i.userId === userId);
+    const customerSubs = memStore.saasCustomerSubscriptions.filter(c => c.userId === userId);
+    const apiKeys = memStore.saasApiKeys.filter(k => k.userId === userId);
+    const webhookLogs = memStore.saasWebhookLogs;
+
+    // Financial calculations
+    const activeCustomerSubs = customerSubs.filter(c => c.status === 'active');
+    const mrr = activeCustomerSubs.reduce((sum, c) => sum + c.mrrAmount, 0);
+    const arr = mrr * 12;
+    const churnRate = customerSubs.length > 0 
+      ? Number(((customerSubs.filter(c => c.status === 'cancelled' || c.status === 'paused').length / customerSubs.length) * 100).toFixed(1))
+      : 0;
+
+    const totalInvoicedMonth = invoices.reduce((sum, i) => sum + i.totalAmount, 0);
+    const receivablesPending = invoices.filter(i => i.status === 'pending').reduce((sum, i) => sum + i.totalAmount, 0);
+
+    const analytics = {
+      mrr,
+      arr,
+      activeSubscribers: activeCustomerSubs.length,
+      churnRate,
+      totalInvoicedMonth,
+      receivablesPending,
+      cashRunwayMonths: 14.6,
+      aiBusinessInsights: [
+        `Predictive Cash Flow: ₹${Math.round(mrr * 1.15).toLocaleString('en-IN')} projected for next month with 98.2% on-time UPI Autopay collection rate.`,
+        `GST Compliance Alert: Advance tax GSTR-1 filing due on the 11th. Total output tax liability is ₹${Math.round(totalInvoicedMonth * 0.18).toLocaleString('en-IN')}.`,
+        `Working Capital: ₹${receivablesPending.toLocaleString('en-IN')} in pending invoices can be unlocked instantly using FinCommerce Invoice Factoring at 0% processing fee.`
+      ]
+    };
+
+    return {
+      subscription: JSON.parse(JSON.stringify(subscription)),
+      plans,
+      invoices: JSON.parse(JSON.stringify(invoices)),
+      customerSubscriptions: JSON.parse(JSON.stringify(customerSubs)),
+      apiKeys: JSON.parse(JSON.stringify(apiKeys)),
+      webhookLogs: JSON.parse(JSON.stringify(webhookLogs)),
+      analytics,
+    };
+  },
+
+  async subscribeSaasPlan(userId: number, planId: 'starter' | 'growth' | 'enterprise', billingCycle: 'monthly' | 'annual', paymentMethod: string) {
+    const plans = this.getSaasPlans();
+    const targetPlan = plans.find(p => p.id === planId) || plans[1];
+    const amount = billingCycle === 'annual' ? targetPlan.annualPrice : targetPlan.monthlyPrice;
+
+    // Deduct from bank or credit line if not free
+    if (amount > 0) {
+      const user = memStore.users.find(u => u.id === userId);
+      if (user) {
+        if (paymentMethod === 'credit_line') {
+          if (user.creditLine.availableLimit < amount) {
+            throw new Error('Insufficient FinCommerce Credit Line limit for this subscription.');
+          }
+          user.creditLine.availableLimit -= amount;
+          user.creditLine.usedLimit += amount;
+        } else if (paymentMethod === 'upi_autopay' || paymentMethod === 'hdfc_netbanking') {
+          if (user.bankAccount.balance < amount) {
+            throw new Error('Insufficient UPI Bank balance to activate plan.');
+          }
+          user.bankAccount.balance -= amount;
+        }
+
+        // Add transaction
+        memStore.transactions.unshift({
+          id: memStore.txnIdCounter++,
+          userId,
+          referenceId: 'FC-SAAS-' + Math.floor(100000 + Math.random() * 900000),
+          type: 'autopay_mandate',
+          direction: 'debit',
+          amount,
+          recipientName: `FinCommerce SaaS Cloud (${targetPlan.name})`,
+          recipientUpiOrAccount: 'saas.billing@fincommerce',
+          category: 'Bills & Utilities',
+          note: `${targetPlan.name} ${billingCycle.toUpperCase()} Subscription Renewal`,
+          paymentMethod: paymentMethod === 'credit_line' ? 'Credit Line' : 'AutoPay Mandate',
+          status: 'success',
+          createdAt: new Date().toISOString(),
+        });
+      }
+    }
+
+    let subIndex = memStore.saasSubscriptions.findIndex(s => s.userId === userId);
+    const nextDueDate = new Date(Date.now() + (billingCycle === 'annual' ? 365 : 30) * 24 * 3600 * 1000);
+
+    const updatedSub: DBSaasSubscription = {
+      id: 'SUB-' + targetPlan.id.toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000),
+      userId,
+      planId: targetPlan.id,
+      planName: targetPlan.name,
+      status: 'active',
+      billingCycle,
+      currentPeriodStart: new Date().toISOString(),
+      currentPeriodEnd: nextDueDate.toISOString(),
+      autoRenew: true,
+      paymentMethod: (paymentMethod as any) || 'upi_autopay',
+      amount,
+      nextBillingDate: nextDueDate.toISOString().split('T')[0],
+      mandateRef: 'FC-AUTOPAY-MNDT-' + Math.floor(10000 + Math.random() * 90000),
+    };
+
+    if (subIndex >= 0) {
+      memStore.saasSubscriptions[subIndex] = updatedSub;
+    } else {
+      memStore.saasSubscriptions.push(updatedSub);
+    }
+
+    return JSON.parse(JSON.stringify(updatedSub));
+  },
+
+  async createSaasInvoice(userId: number, invoiceData: {
+    clientName: string;
+    clientGstin: string;
+    clientEmail: string;
+    clientState?: string;
+    itemDescription: string;
+    hsnCode?: string;
+    subtotal: number;
+    taxRate?: number;
+    dueDate?: string;
+  }): Promise<DBSaasInvoice> {
+    const taxRate = invoiceData.taxRate || 18;
+    const isInterstate = invoiceData.clientState && !invoiceData.clientState.includes('Karnataka');
+    const taxAmount = (invoiceData.subtotal * taxRate) / 100;
+    
+    const cgst = isInterstate ? 0 : taxAmount / 2;
+    const sgst = isInterstate ? 0 : taxAmount / 2;
+    const igst = isInterstate ? taxAmount : 0;
+    const totalAmount = invoiceData.subtotal + taxAmount;
+
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const invoiceNumber = `FC-GST-2026-${randomNum}`;
+
+    const newInvoice: DBSaasInvoice = {
+      id: `INV-2026-${randomNum}`,
+      invoiceNumber,
+      userId,
+      clientName: invoiceData.clientName,
+      clientGstin: invoiceData.clientGstin || '29AAAAA0000A1Z5',
+      clientEmail: invoiceData.clientEmail,
+      clientState: invoiceData.clientState || 'Karnataka (29)',
+      itemDescription: invoiceData.itemDescription,
+      hsnCode: invoiceData.hsnCode || '998311',
+      subtotal: invoiceData.subtotal,
+      cgst,
+      sgst,
+      igst,
+      totalAmount,
+      status: 'pending',
+      dueDate: invoiceData.dueDate || new Date(Date.now() + 15 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      paymentLink: `https://fincommerce.in/pay/inv_${randomNum}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    memStore.saasInvoices.unshift(newInvoice);
+
+    // Also push a webhook log
+    memStore.saasWebhookLogs.unshift({
+      id: 'WH-' + Math.floor(1000 + Math.random() * 9000),
+      event: 'invoice.paid',
+      status: 'delivered',
+      httpCode: 200,
+      timestamp: new Date().toISOString(),
+      payload: {
+        event: 'invoice.created',
+        invoice_number: invoiceNumber,
+        client: invoiceData.clientName,
+        total: totalAmount,
+        irn: 'IRN-' + Math.random().toString(36).substring(2, 14).toUpperCase(),
+      }
+    });
+
+    return JSON.parse(JSON.stringify(newInvoice));
+  },
+
+  async updateSaasInvoiceStatus(userId: number, invoiceId: string, status: 'paid' | 'pending' | 'overdue'): Promise<DBSaasInvoice | null> {
+    const inv = memStore.saasInvoices.find(i => i.id === invoiceId && i.userId === userId);
+    if (!inv) return null;
+    inv.status = status;
+    return JSON.parse(JSON.stringify(inv));
+  },
+
+  async toggleCustomerSubscription(userId: number, subId: string): Promise<DBSaasCustomerSubscription | null> {
+    const sub = memStore.saasCustomerSubscriptions.find(c => c.id === subId && c.userId === userId);
+    if (!sub) return null;
+    sub.status = sub.status === 'active' ? 'paused' : 'active';
+    return JSON.parse(JSON.stringify(sub));
+  },
+
+  async chargeCustomerSubscription(userId: number, subId: string): Promise<{ success: boolean; chargedAmount: number; nextDueDate: string }> {
+    const sub = memStore.saasCustomerSubscriptions.find(c => c.id === subId && c.userId === userId);
+    if (!sub) throw new Error('Customer subscription not found.');
+    
+    sub.lastChargedAt = new Date().toISOString().split('T')[0];
+    const nextDate = new Date(Date.now() + 30 * 24 * 3600 * 1000);
+    sub.nextChargeDate = nextDate.toISOString().split('T')[0];
+
+    // Credit to merchant's bank balance!
+    const user = memStore.users.find(u => u.id === userId);
+    if (user) {
+      user.bankAccount.balance += sub.mrrAmount;
+      memStore.transactions.unshift({
+        id: memStore.txnIdCounter++,
+        userId,
+        referenceId: 'FC-RECUR-' + Math.floor(100000 + Math.random() * 900000),
+        type: 'autopay_mandate',
+        direction: 'credit',
+        amount: sub.mrrAmount,
+        recipientName: sub.customerName,
+        recipientUpiOrAccount: sub.customerUpi,
+        category: 'Income',
+        note: `UPI Autopay Recurring Charge (${sub.planName})`,
+        paymentMethod: 'AutoPay Mandate',
+        status: 'success',
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    // Log webhook
+    memStore.saasWebhookLogs.unshift({
+      id: 'WH-' + Math.floor(1000 + Math.random() * 9000),
+      event: 'subscription.renewed',
+      status: 'delivered',
+      httpCode: 200,
+      timestamp: new Date().toISOString(),
+      payload: {
+        event: 'subscription.charged',
+        subscription_id: sub.id,
+        amount: sub.mrrAmount,
+        customer: sub.customerName,
+        upi: sub.customerUpi,
+      }
+    });
+
+    return {
+      success: true,
+      chargedAmount: sub.mrrAmount,
+      nextDueDate: sub.nextChargeDate,
+    };
+  },
+
+  async generateSaasApiKey(userId: number, keyType: 'live' | 'test', name: string): Promise<DBSaasApiKey> {
+    const prefix = keyType === 'live' ? 'fc_live_' : 'fc_test_';
+    const randomHex = Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const fullKey = prefix + randomHex;
+    const maskedKey = `${prefix}••••••••••••••••${randomHex.slice(-8)}`;
+
+    const newKey: DBSaasApiKey = {
+      id: 'KEY-' + Math.floor(10 + Math.random() * 90),
+      userId,
+      keyType,
+      name: name || `${keyType === 'live' ? 'Production' : 'Sandbox'} Key`,
+      prefix,
+      maskedKey,
+      fullKey,
+      createdAt: new Date().toISOString(),
+      lastUsedAt: 'Never',
+    };
+
+    memStore.saasApiKeys.unshift(newKey);
+    return JSON.parse(JSON.stringify(newKey));
+  },
+
+  async simulateSaasWebhook(userId: number, eventType: string): Promise<DBSaasWebhookLog> {
+    const validEvents: Array<DBSaasWebhookLog['event']> = [
+      'payment.captured',
+      'subscription.renewed',
+      'invoice.paid',
+      'mandate.authorized',
+    ];
+
+    const chosenEvent = validEvents.includes(eventType as any) ? (eventType as DBSaasWebhookLog['event']) : 'payment.captured';
+
+    const samplePayloads: Record<string, any> = {
+      'payment.captured': {
+        event: 'payment.captured',
+        payment_id: 'pay_' + Math.random().toString(36).substring(2, 12),
+        amount: 3499,
+        currency: 'INR',
+        upi_vpa: 'customer@okhdfcbank',
+        captured_at: new Date().toISOString(),
+      },
+      'subscription.renewed': {
+        event: 'subscription.renewed',
+        subscription_id: 'CSUB-991',
+        amount: 2999,
+        status: 'active',
+        next_billing: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().split('T')[0],
+      },
+      'invoice.paid': {
+        event: 'invoice.paid',
+        invoice_number: 'FC-GST-2026-0843',
+        amount: 22408.20,
+        settlement_mode: 'IMPS_DIRECT_UPI',
+      },
+      'mandate.authorized': {
+        event: 'mandate.authorized',
+        mandate_ref: 'UMN/NPCI/2026/9941',
+        max_amount: 15000,
+        frequency: 'MONTHLY',
+      }
+    };
+
+    const newLog: DBSaasWebhookLog = {
+      id: 'WH-' + Math.floor(1000 + Math.random() * 9000),
+      event: chosenEvent,
+      status: 'delivered',
+      httpCode: 200,
+      timestamp: new Date().toISOString(),
+      payload: samplePayloads[chosenEvent] || samplePayloads['payment.captured'],
+    };
+
+    memStore.saasWebhookLogs.unshift(newLog);
+    return JSON.parse(JSON.stringify(newLog));
+  }
 };

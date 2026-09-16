@@ -243,3 +243,123 @@ export interface DashboardData {
     rating: string;
   };
 }
+
+export interface SaasPlan {
+  id: 'starter' | 'growth' | 'enterprise';
+  name: string;
+  tagline: string;
+  monthlyPrice: number;
+  annualPrice: number;
+  badge?: string;
+  recommended?: boolean;
+  features: string[];
+  limits: {
+    maxInvoicesPerMonth: number | 'unlimited';
+    apiRequestsPerMin: number;
+    teamSeats: number;
+    transactionMdrPercent: number;
+  };
+}
+
+export interface SaasSubscription {
+  id: string;
+  userId: number;
+  planId: 'starter' | 'growth' | 'enterprise';
+  planName: string;
+  status: 'active' | 'trialing' | 'past_due' | 'cancelled';
+  billingCycle: 'monthly' | 'annual';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  autoRenew: boolean;
+  paymentMethod: 'upi_autopay' | 'credit_line' | 'hdfc_netbanking';
+  amount: number;
+  nextBillingDate: string;
+  mandateRef: string;
+}
+
+export interface SaasInvoiceItem {
+  id: string;
+  description: string;
+  hsnCode: string;
+  quantity: number;
+  unitPrice: number;
+  gstRate: number; // e.g. 18
+  amount: number;
+}
+
+export interface SaasInvoice {
+  id: string;
+  invoiceNumber: string;
+  userId: number;
+  clientName: string;
+  clientGstin: string;
+  clientEmail: string;
+  clientState: string;
+  itemDescription: string;
+  hsnCode: string;
+  subtotal: number;
+  cgst: number;
+  sgst: number;
+  igst: number;
+  totalAmount: number;
+  status: 'paid' | 'pending' | 'overdue';
+  dueDate: string;
+  paymentLink: string;
+  createdAt: string;
+}
+
+export interface SaasCustomerSubscription {
+  id: string;
+  userId: number;
+  customerName: string;
+  customerEmail: string;
+  customerUpi: string;
+  planName: string;
+  mrrAmount: number;
+  frequency: 'monthly' | 'quarterly' | 'annual';
+  status: 'active' | 'paused' | 'cancelled';
+  mandateRef: string;
+  nextChargeDate: string;
+  lastChargedAt: string;
+}
+
+export interface SaasApiKey {
+  id: string;
+  userId: number;
+  keyType: 'live' | 'test';
+  name: string;
+  prefix: string;
+  maskedKey: string;
+  fullKey?: string;
+  createdAt: string;
+  lastUsedAt: string;
+}
+
+export interface SaasWebhookLog {
+  id: string;
+  event: 'payment.captured' | 'subscription.renewed' | 'invoice.paid' | 'mandate.authorized';
+  status: 'delivered' | 'failed';
+  httpCode: number;
+  timestamp: string;
+  payload: Record<string, any>;
+}
+
+export interface SaasOverviewData {
+  subscription: SaasSubscription;
+  plans: SaasPlan[];
+  invoices: SaasInvoice[];
+  customerSubscriptions: SaasCustomerSubscription[];
+  apiKeys: SaasApiKey[];
+  webhookLogs: SaasWebhookLog[];
+  analytics: {
+    mrr: number;
+    arr: number;
+    activeSubscribers: number;
+    churnRate: number;
+    totalInvoicedMonth: number;
+    receivablesPending: number;
+    cashRunwayMonths: number;
+    aiBusinessInsights: string[];
+  };
+}
+

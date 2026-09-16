@@ -63,6 +63,13 @@ export const initialCategories: DBCategory[] = [
     description: 'Bharat Soundbox audio payment alert units, contactless Micro-POS terminals, and biometric hardware vaults.',
     icon: 'CreditCard',
   },
+  {
+    id: 6,
+    name: 'SaaS & Cloud Software',
+    slug: 'saas-cloud-software',
+    description: 'Enterprise billing, UPI recurring SDKs, and merchant cloud automation tools.',
+    icon: 'Layers',
+  },
 ];
 
 export const initialProducts: DBProduct[] = [
@@ -296,6 +303,64 @@ export const initialProducts: DBProduct[] = [
       'Honey Processing': 'Unfiltered, Raw, Cold-Extracted',
       'Weight': '10g Saffron + 500g Glass Jar Forest Honey',
       'Harvest': 'Current Autumn Crop'
+    }
+  },
+  {
+    id: 9,
+    name: 'FinCommerce Growth Merchant Cloud (1-Year Business SaaS)',
+    slug: 'fincommerce-growth-merchant-cloud-annual',
+    description: 'All-in-one business operating system for modern merchants & D2C brands. Includes dynamic UPI QR generation, automated GST E-Invoicing, UPI Autopay recurring customer billing engine, 5 multi-user team seats, and AI cash flow predictive analytics.',
+    price: 14990.00,
+    compareAtPrice: 17990.00,
+    categoryName: 'SaaS & Cloud Software',
+    sellerName: 'FinCommerce Technologies India',
+    sellerCity: 'Bengaluru, Karnataka',
+    imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=85',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&auto=format&fit=crop&q=85'
+    ],
+    stockQuantity: 999,
+    rating: 4.95,
+    reviewCount: 318,
+    isFeatured: true,
+    tags: ['saas', 'cloud', 'merchant', 'software', 'billing', 'gst'],
+    emiPerMonth: 4996,
+    specs: {
+      'Deployment': 'Instant 100% Cloud-Hosted (Zero Setup)',
+      'UPI Autopay Engine': 'Included (NPCI Mandate Compliant)',
+      'GST E-Invoice': 'Unlimited IRP Signed Invoices & E-Way Bills',
+      'Team Seats': '5 Multi-Role Admin / Cashier Access Seats',
+      'API Throughput': '1,000 API Requests/min with Webhook SLAs'
+    }
+  },
+  {
+    id: 10,
+    name: 'Auto-GST E-Invoice & E-Way Bill Connector (Annual Cloud Plan)',
+    slug: 'auto-gst-einvoice-eway-cloud-connector',
+    description: 'Instant compliance-ready Indian GST e-invoicing API and portal with auto IRN generation, signed QR codes, B2B recipient GSTIN auto-verification, WhatsApp/Email automated PDF dispatch, and Tally/Zoho Books bi-directional sync.',
+    price: 4499.00,
+    compareAtPrice: 5999.00,
+    categoryName: 'SaaS & Cloud Software',
+    sellerName: 'FinCommerce TaxTech Labs',
+    sellerCity: 'Mumbai, Maharashtra',
+    imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=85',
+    galleryUrls: [
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=85'
+    ],
+    stockQuantity: 999,
+    rating: 4.88,
+    reviewCount: 184,
+    isFeatured: false,
+    tags: ['gst', 'einvoice', 'ewaybill', 'tax', 'saas', 'api'],
+    emiPerMonth: 1500,
+    specs: {
+      'IRN Generation': 'Sub-second real-time government IRP portal handshake',
+      'Format Compatibility': 'JSON, Excel, CSV, ERP Webhooks',
+      'Dispatch Channels': 'Automated WhatsApp Business API + PDF Email',
+      'Storage': '8-Year Cloud Audit Vault (RBI & GSTN Mandated)'
     }
   }
 ];
