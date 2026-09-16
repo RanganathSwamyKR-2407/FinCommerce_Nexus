@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface CartDrawerProps {
   onCheckout: () => void;
@@ -134,12 +135,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onCheckout }) => {
             ) : (
               items.map((item) => (
                 <div key={item.productId} role="listitem" className="py-4 flex space-x-3.5 group">
-                  <img
-                    src={item.product?.imageUrl}
-                    alt={`Thumbnail of ${item.product?.name}`}
-                    className="w-18 h-18 rounded-xl object-cover bg-slate-100 shrink-0 border border-slate-200"
-                    referrerPolicy="no-referrer"
-                  />
+                  <div className="w-18 h-18 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                    <SafeImage
+                      src={item.product?.imageUrl}
+                      alt={`Thumbnail of ${item.product?.name}`}
+                      fallbackCategory={item.product?.categoryName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start">

@@ -3,6 +3,7 @@ import { Star, ShoppingBag, Eye, Check, Zap, ShieldCheck } from 'lucide-react';
 import { Product } from '../types/index.js';
 import { useCart } from '../context/CartContext.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface ProductCardProps {
   product: Product;
@@ -36,12 +37,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onSelect }) =
     >
       {/* Product Image Area */}
       <div className="relative aspect-square w-full bg-slate-100 overflow-hidden">
-        <img
+        <SafeImage
           src={product.imageUrl}
           alt={`Product photo of ${product.name}`}
+          fallbackCategory={product.categoryName}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
-          referrerPolicy="no-referrer"
         />
 
         {/* Badges */}

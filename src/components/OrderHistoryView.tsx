@@ -4,6 +4,7 @@ import { Order } from '../types/index.js';
 import { useAuth } from '../context/AuthContext.js';
 import { useCart } from '../context/CartContext.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface OrderHistoryViewProps {
   onBack: () => void;
@@ -363,12 +364,13 @@ export const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ onBack }) =>
                   {selectedOrder.items.map((item) => (
                     <div key={item.id} role="listitem" className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                       <div className="flex items-center space-x-3.5">
-                        <img
-                          src={item.productImage}
-                          alt=""
-                          className="w-14 h-14 rounded-xl object-cover bg-slate-100 border border-slate-200"
-                          referrerPolicy="no-referrer"
-                        />
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                          <SafeImage
+                            src={item.productImage}
+                            alt={item.productName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                         <div>
                           <h4 className="text-sm font-bold text-slate-900 leading-snug">{item.productName}</h4>
                           <p className="text-xs text-slate-500 mt-0.5">

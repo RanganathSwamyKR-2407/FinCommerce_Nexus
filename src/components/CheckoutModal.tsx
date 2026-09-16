@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { useCart } from '../context/CartContext.js';
 import { Order } from '../types/index.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -670,7 +671,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 {completedOrder.items.map((item) => (
                   <div key={item.id} role="listitem" className="py-2 flex items-center justify-between text-xs">
                     <div className="flex items-center space-x-2.5 truncate">
-                      <img src={item.productImage} alt="" className="w-9 h-9 rounded-lg object-cover bg-slate-100" />
+                      <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                        <SafeImage src={item.productImage} alt={item.productName} className="w-full h-full object-cover" />
+                      </div>
                       <div className="truncate">
                         <p className="font-bold text-slate-900 truncate">{item.productName}</p>
                         <p className="text-[11px] text-slate-500">Qty: {item.quantity}</p>

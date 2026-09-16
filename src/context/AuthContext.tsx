@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => Promise<{ success: boolean; error?: string }>;
   refreshUser: () => Promise<void>;
@@ -15,6 +15,10 @@ interface AuthContextType {
   setIsAuthModalOpen: (open: boolean) => void;
   authModalMode: 'signin' | 'signup';
   setAuthModalMode: (mode: 'signin' | 'signup') => void;
+  // Convenient aliases for UI modal components
+  authMode: 'signin' | 'signup';
+  setAuthMode: (mode: 'signin' | 'signup') => void;
+  closeAuthModal: () => void;
   openSignIn: () => void;
   openSignUp: () => void;
 }
@@ -90,12 +94,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (
+    nameOrEmail: string,
+    emailOrPassword: string,
+    passwordOrName: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    // Intelligently handle both (name, email, password) and (email, password, name)
+    let finalName = '';
+    let finalEmail = '';
+    let finalPassword = '';
+
+    if (nameOrEmail.includes('@')) {
+      finalEmail = nameOrEmail.trim();
+      finalPassword = emailOrPassword;
+      finalName = (passwordOrName || '').trim();
+    } else if (emailOrPassword.includes('@')) {
+      finalName = nameOrEmail.trim();
+      finalEmail = emailOrPassword.trim();
+      finalPassword = passwordOrName;
+    } else {
+      finalName = nameOrEmail.trim();
+      finalEmail = emailOrPassword.trim();
+      finalPassword = passwordOrName;
+    }
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ name: finalName, email: finalEmail, password: finalPassword }),
       });
 
       const data = await response.json();
@@ -162,6 +189,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+
   const openSignIn = () => {
     setAuthModalMode('signin');
     setIsAuthModalOpen(true);
@@ -188,6 +217,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthModalOpen,
         authModalMode,
         setAuthModalMode,
+        authMode: authModalMode,
+        setAuthMode: setAuthModalMode,
+        closeAuthModal,
         openSignIn,
         openSignUp,
       }}

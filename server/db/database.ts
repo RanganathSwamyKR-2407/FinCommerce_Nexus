@@ -234,6 +234,50 @@ class InMemStore {
       createdAt: new Date(Date.now() - 180 * 24 * 3600 * 1000).toISOString(),
     });
 
+    // Secondary demo user: Alex Mercer
+    const alexPasswordHash = bcrypt.hashSync('Password123!', 10);
+    this.users.push({
+      id: 2,
+      email: 'alex@nexuscommerce.com',
+      passwordHash: alexPasswordHash,
+      name: 'Alex Mercer',
+      role: 'customer',
+      phone: '+91 98111 22334',
+      upiId: 'alex.mercer@okhdfcbank',
+      addressLine1: 'Indiranagar 100ft Road',
+      city: 'Bengaluru',
+      postalCode: '560038',
+      country: 'India',
+      bankAccount: {
+        bankName: 'State Bank of India',
+        accountNumber: '•••• •••• 8812',
+        ifsc: 'SBIN0004123',
+        balance: 32000,
+        upiId: 'alex.mercer@okhdfcbank',
+      },
+      creditLine: {
+        totalLimit: 100000,
+        availableLimit: 85000,
+        usedLimit: 15000,
+        status: 'active',
+        interestRateApr: 12.0,
+        nextBillingDate: '2026-10-01',
+      },
+      digitalGoldGrams: 2.1,
+      digitalGoldValueInr: 15120,
+      financialHealth: {
+        score: 80,
+        rating: 'Good',
+        savingsStreakWeeks: 8,
+        monthlySavingsRate: 24,
+        emergencyBufferMonths: 3.5,
+        debtToIncomeRatio: 18,
+        onTimeBillPercentage: 98,
+      },
+      createdAt: new Date().toISOString(),
+    });
+    this.userIdCounter = 3;
+
     // Seed realistic Indian payments transactions
     this.transactions = [
       {
@@ -472,7 +516,7 @@ class InMemStore {
           orderId: 1,
           productId: 2,
           productName: 'Aura Wave Pro Wireless ANC Earbuds (Spatial Audio)',
-          productImage: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
+          productImage: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=1200&auto=format&fit=crop&q=85',
           price: 4499,
           quantity: 1,
           subtotal: 4499,
@@ -507,7 +551,7 @@ class InMemStore {
           orderId: 2,
           productId: 1,
           productName: 'Bharat Soundbox Pro 4G with Multilingual Voice',
-          productImage: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
+          productImage: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=1200&auto=format&fit=crop&q=85',
           price: 1899,
           quantity: 1,
           subtotal: 1899,

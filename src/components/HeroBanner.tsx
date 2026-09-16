@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldCheck, Truck, RotateCcw, CreditCard, Sparkles, ArrowRight, Zap, Smartphone } from 'lucide-react';
 import { Product } from '../types/index.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface HeroBannerProps {
   featuredProduct?: Product;
@@ -81,11 +82,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 className="cursor-pointer group relative w-full max-w-md bg-slate-900/80 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-sm transition-transform hover:-translate-y-1 duration-300 focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:outline-none"
               >
                 <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-800 mb-4">
-                  <img
+                  <SafeImage
                     src={featuredProduct.imageUrl}
                     alt={`Photo of featured product: ${featuredProduct.name}`}
+                    fallbackCategory={featuredProduct.categoryName}
                     className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
                   />
                   <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-amber-300 border border-amber-400/20">
                     ★ {featuredProduct.rating} ({featuredProduct.reviewCount} reviews)

@@ -46,11 +46,31 @@ export const AuthModal: React.FC = () => {
 
     try {
       if (authMode === 'signin') {
-        await login(email, password);
+        const result = await login(email.trim(), password);
+        if (!result.success) {
+          setErrorMessage(result.error || 'Authentication failed. Please check your credentials.');
+          return;
+        }
         showToast('Successfully signed in!', 'success');
       } else {
-        await register(name, email, password);
-        showToast('Welcome to Nexus! Account created.', 'success');
+        if (!name.trim()) {
+          setErrorMessage('Please enter your full name.');
+          return;
+        }
+        if (!email.trim() || !email.includes('@')) {
+          setErrorMessage('Please enter a valid email address.');
+          return;
+        }
+        if (password.length < 6) {
+          setErrorMessage('Password must be at least 6 characters long.');
+          return;
+        }
+        const result = await register(name.trim(), email.trim(), password);
+        if (!result.success) {
+          setErrorMessage(result.error || 'Registration failed. Please check your details.');
+          return;
+        }
+        showToast('Welcome to FinCommerce! Your account has been created.', 'success');
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Authentication failed. Please check credentials.');
@@ -59,9 +79,22 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  const handleDemoFill = () => {
+  const handleDemoFillPriya = () => {
+    setEmail('priya.sharma@fincommerce.in');
+    setPassword('password123');
+    setErrorMessage(null);
+  };
+
+  const handleDemoFillAlex = () => {
     setEmail('alex@nexuscommerce.com');
     setPassword('Password123!');
+    setErrorMessage(null);
+  };
+
+  const handleDemoFillRegister = () => {
+    setName('Rohan Verma');
+    setEmail(`rohan.verma${Math.floor(100 + Math.random() * 900)}@fincommerce.in`);
+    setPassword('Pass@123456');
     setErrorMessage(null);
   };
 
@@ -79,18 +112,18 @@ export const AuthModal: React.FC = () => {
         {/* Top bar with close button */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-md bg-slate-900 text-white flex items-center justify-center font-black text-xs">
-              N
+            <div className="w-6 h-6 rounded-md bg-indigo-600 text-white flex items-center justify-center font-black text-xs">
+              F
             </div>
             <span className="font-extrabold text-xs tracking-wider uppercase text-slate-800">
-              Nexus Account
+              FinCommerce Account
             </span>
           </div>
           <button
             ref={closeBtnRef}
             onClick={closeAuthModal}
             aria-label="Close authentication modal"
-            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -104,8 +137,8 @@ export const AuthModal: React.FC = () => {
             </h2>
             <p className="text-xs text-slate-600">
               {authMode === 'signin'
-                ? 'Sign in to access synchronized carts and order tracking.'
-                : 'Join Nexus to unlock expedited delivery & warranty.'}
+                ? 'Sign in to access your UPI payments, active loans & orders.'
+                : 'Join FinCommerce to unlock instant credit & smart shopping.'}
             </p>
           </div>
 
@@ -120,7 +153,7 @@ export const AuthModal: React.FC = () => {
                 setAuthMode('signin');
                 setErrorMessage(null);
               }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer ${
                 authMode === 'signin'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -137,7 +170,7 @@ export const AuthModal: React.FC = () => {
                 setAuthMode('signup');
                 setErrorMessage(null);
               }}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer ${
                 authMode === 'signup'
                   ? 'bg-white text-slate-900 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -147,15 +180,40 @@ export const AuthModal: React.FC = () => {
             </button>
           </div>
 
-          {/* Demo User Fast-Fill Button */}
-          {authMode === 'signin' && (
+          {/* Demo User Fast-Fill Buttons */}
+          {authMode === 'signin' ? (
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={handleDemoFillPriya}
+                className="w-full py-2 px-3 bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-bold rounded-xl hover:bg-indigo-100 transition-colors flex items-center justify-between focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
+                  <span>Autofill Priya Sharma (UPI & Credit Active)</span>
+                </div>
+                <span className="text-[10px] text-indigo-600 font-mono">₹48.5K Bal</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleDemoFillAlex}
+                className="w-full py-1.5 px-3 bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-between focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer"
+              >
+                <div className="flex items-center space-x-1.5">
+                  <User className="w-3.5 h-3.5 text-slate-500" aria-hidden="true" />
+                  <span>Autofill Alex Mercer (Standard User)</span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-mono">alex@nexuscommerce.com</span>
+              </button>
+            </div>
+          ) : (
             <button
               type="button"
-              onClick={handleDemoFill}
-              className="w-full py-2 px-3 bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-bold rounded-xl hover:bg-indigo-100 transition-colors flex items-center justify-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none"
+              onClick={handleDemoFillRegister}
+              className="w-full py-2 px-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold rounded-xl hover:bg-emerald-100 transition-colors flex items-center justify-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:outline-none cursor-pointer"
             >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" aria-hidden="true" />
-              <span>Click to Autofill Demo Credentials (Alex Mercer)</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
+              <span>Autofill New User Sample (Rohan Verma)</span>
             </button>
           )}
 
@@ -181,7 +239,7 @@ export const AuthModal: React.FC = () => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Alex Mercer"
+                    placeholder="e.g. Rahul Verma"
                     className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:bg-white focus:outline-none"
                   />
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" aria-hidden="true" />
@@ -201,7 +259,7 @@ export const AuthModal: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="alex@nexuscommerce.com"
+                  placeholder="name@example.com"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:bg-white focus:outline-none"
                 />
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" aria-hidden="true" />
@@ -219,7 +277,7 @@ export const AuthModal: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="At least 6 characters"
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-slate-900 focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:bg-white focus:outline-none"
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" aria-hidden="true" />
@@ -231,7 +289,7 @@ export const AuthModal: React.FC = () => {
               disabled={isSubmitting}
               id="auth-submit-btn"
               aria-busy={isSubmitting}
-              className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none transition-all flex items-center justify-center space-x-2 disabled:opacity-50 mt-2"
+              className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 focus-visible:outline-none transition-all flex items-center justify-center space-x-2 disabled:opacity-50 mt-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -240,7 +298,7 @@ export const AuthModal: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span>{authMode === 'signin' ? 'Sign In' : 'Create Nexus Account'}</span>
+                  <span>{authMode === 'signin' ? 'Sign In' : 'Create FinCommerce Account'}</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </>
               )}

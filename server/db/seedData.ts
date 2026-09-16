@@ -76,10 +76,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'FinCommerce Hardware',
     sellerName: 'Bengaluru Tech Instruments',
     sellerCity: 'Bengaluru, Karnataka',
-    imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1545454675-3531b543be5d?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 45,
     rating: 4.9,
@@ -104,10 +105,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Smart Tech & Sound',
     sellerName: 'Sonic Bharat Labs',
     sellerCity: 'Hyderabad, Telangana',
-    imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1572536147248-ac59a8abfa4b?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 28,
     rating: 4.8,
@@ -132,10 +134,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Artisanal & Handloom',
     sellerName: 'Kashmir Heritage Craftsmen',
     sellerCity: 'Srinagar, Jammu & Kashmir',
-    imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 12,
     rating: 4.95,
@@ -160,10 +163,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Workspace & Ergonomics',
     sellerName: 'Rajasthan Timber & Guild',
     sellerCity: 'Jodhpur, Rajasthan',
-    imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 24,
     rating: 4.85,
@@ -188,10 +192,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Organics & Superfoods',
     sellerName: 'Coorg Estate Coffee Roasters',
     sellerCity: 'Madikeri, Karnataka',
-    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 65,
     rating: 4.9,
@@ -216,10 +221,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'FinCommerce Hardware',
     sellerName: 'FinCommerce Payment Systems',
     sellerCity: 'Mumbai, Maharashtra',
-    imageUrl: 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1556742031-c6961e8560b0?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1556740758-90de374c12ad?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1556742031-c6961e8560b0?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 35,
     rating: 4.88,
@@ -244,10 +250,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Workspace & Ergonomics',
     sellerName: 'Akshar Mechanical Studio',
     sellerCity: 'Pune, Maharashtra',
-    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1595225476474-87563907a212?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 20,
     rating: 4.82,
@@ -272,9 +279,11 @@ export const initialProducts: DBProduct[] = [
     categoryName: 'Organics & Superfoods',
     sellerName: 'Pampore Golden Spice Cooperative',
     sellerCity: 'Pampore, Jammu & Kashmir',
-    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=1200&auto=format&fit=crop&q=85',
     galleryUrls: [
-      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&auto=format&fit=crop&q=80'
+      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=1200&auto=format&fit=crop&q=85',
+      'https://images.unsplash.com/photo-1509358271058-acd22cc93898?w=1200&auto=format&fit=crop&q=85'
     ],
     stockQuantity: 50,
     rating: 4.93,

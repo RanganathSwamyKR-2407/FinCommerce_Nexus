@@ -3,6 +3,7 @@ import { X, Star, ShoppingBag, Truck, ShieldCheck, Check, ArrowRight } from 'luc
 import { Product } from '../types/index.js';
 import { useCart } from '../context/CartContext.js';
 import { formatInr } from '../utils/format.js';
+import { SafeImage } from './SafeImage.js';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -82,14 +83,14 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Left Column: Image Gallery */}
           <div className="p-6 bg-slate-50 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-200">
             <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white shadow-inner mb-4">
-              <img
+              <SafeImage
                 src={selectedImage}
                 alt={`Detailed view of ${product.name}`}
+                fallbackCategory={product.categoryName}
                 className="w-full h-full object-cover object-center"
-                referrerPolicy="no-referrer"
               />
               {discountPercent && (
-                <div className="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-1 rounded-md text-xs font-black shadow-md">
+                <div className="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-1 rounded-md text-xs font-black shadow-md z-10">
                   SAVE {discountPercent}%
                 </div>
               )}
@@ -104,13 +105,18 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     onClick={() => setSelectedImage(img)}
                     aria-label={`View product image ${idx + 1}`}
                     aria-pressed={selectedImage === img}
-                    className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none ${
+                    className={`relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:outline-none cursor-pointer ${
                       selectedImage === img
                         ? 'border-indigo-600 ring-2 ring-indigo-600/20'
                         : 'border-slate-200 opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <SafeImage
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      fallbackCategory={product.categoryName}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
